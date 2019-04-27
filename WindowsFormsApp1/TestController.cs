@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
-    public partial class TestSelectionForm : Form
+    public partial class TestController : Form
     {
-        public TestSelectionForm()
+        private List<TestSequence> testSequencesList = new List<TestSequence>();
+        private List<TestSequence> choosenSequencesList = new List<TestSequence>();
+
+
+        public TestController()
         {
             InitializeComponent();
             RefreshDevices();
@@ -59,13 +63,80 @@ namespace WindowsFormsApp1
         private void loadSequencesButton_Click(object sender, EventArgs e)
         {
             TestDatabase testDatabase = TestDatabase.Instance;
-            List<TestSequence> testSequencesList = testDatabase.LoadTestSequenceDefinitions("com.artifexmundi.balefire");
+            testSequencesList = testDatabase.LoadTestSequenceDefinitions("com.artifexmundi.balefire");
 
-            foreach (TestSequence tsq in testSequencesList)
+            sequenceDefinitionsList.Items.Clear();
+            if (testSequencesList.Count != 0)
             {
-                sequencesList.Items.Add(tsq.name);
+                foreach (TestSequence tsq in testSequencesList)
+                {
+                    sequenceDefinitionsList.Items.Add(tsq.testSequenceID);
+                }
             }
 
+        }
+
+
+        private void addSequence_Click(object sender, EventArgs e)
+        {
+            if (sequenceDefinitionsList.SelectedItem != null)
+            {
+                choosenSequenceList.Items.Add(sequenceDefinitionsList.SelectedItem);
+            }
+        }
+
+        private void removeSequence_Click(object sender, EventArgs e)
+        {
+            if (choosenSequenceList.SelectedItem != null)
+            {
+                choosenSequenceList.Items.Remove(choosenSequenceList.SelectedItem);
+            }
+
+        }
+
+        private void moveSequenceUp_Click(object sender, EventArgs e)
+        {
+            if (choosenSequenceList.SelectedItem != null)
+            {
+
+                if (choosenSequenceList.SelectedIndex != 0)
+                {
+                    int i = choosenSequenceList.SelectedIndex;
+
+                    // 1. copying item to another variable
+                    // 2. overwriting it with item on higher position
+                    // 3. overwriting item on higher position with variable
+                    var selectedItem = choosenSequenceList.Items[i];
+                    choosenSequenceList.Items[i] = choosenSequenceList.Items[i - 1];
+                    choosenSequenceList.Items[i - 1] = selectedItem;
+
+                    choosenSequenceList.SetSelected(i - 1, true);
+                }
+
+            }
+
+        }
+
+        private void moveSequenceDown_Click(object sender, EventArgs e)
+        {
+            if (choosenSequenceList.SelectedItem != null)
+            {
+
+                if (choosenSequenceList.SelectedIndex != choosenSequenceList.Items.Count - 1)
+                {
+                    int i = choosenSequenceList.SelectedIndex;
+
+                    // 1. copying item to another variable
+                    // 2. overwriting it with item on lower position
+                    // 3. overwriting item on lower position with variable
+                    var selectedItem = choosenSequenceList.Items[i];
+                    choosenSequenceList.Items[i] = choosenSequenceList.Items[i + 1];
+                    choosenSequenceList.Items[i + 1] = selectedItem;
+
+                    choosenSequenceList.SetSelected(i + 1, true);
+                }
+
+            }
         }
         #endregion
 
@@ -91,7 +162,7 @@ namespace WindowsFormsApp1
             {
                 if (c.Enabled != enabled)
                 {
-             //       c.Enabled = enabled;
+                    c.Enabled = enabled;
                 }
             }
         }
@@ -101,27 +172,33 @@ namespace WindowsFormsApp1
 
             ChangeEnabled(false);
 
-            var testManager = new TestManager();
+            string packagename = comboBoxWithAvailableApps.Text;
+            var testManager = new TestManager(packagename);
 
             //subscribe to all events
             testManager.TestEnded += OnTestEnded;
+            testManager.StepSucceeded += OnStepSucceeded;
             testManager.DeviceNotConnected += OnDeviceNotConnected;
-            testManager.AppNotInstalled += OnAppNotInstalled;
             testManager.AppLaunchFailed += OnAppLaunchFailed;
 
             //force set to true launches test despite fact that app could not be opened via adb - assumes the user launched the app manually. See OnAppLaunchFailed event
             if (force)
                 testManager.forceTest = true;
 
-            string packagename = comboBoxWithAvailableApps.Text;
-            List<string> choosenSequences = selectedList.Items.Cast<string>().ToList();
 
+            List<string> choosenSequences = choosenSequenceList.Items.Cast<string>().ToList();
 
-            //run test manager with appropiate packagename
+            Task test = new Task(() => { testManager.CreateTest(choosenSequences); } );
 
-            var test = new Task(() => { testManager.CreateTest(packagename); } );
-            test.Start();
-
+            if (choosenSequenceStatusCheckedList != null)
+            {
+                //run test manager with appropiate packagename
+                test.Start();
+            }
+            else
+            {
+                MessageBox.Show("Please select at least one step action to execute", "Unable to start test", MessageBoxButtons.OK);
+            }
 
 
         }
@@ -137,7 +214,7 @@ namespace WindowsFormsApp1
 
         public void OnStepSucceeded(object sender, EventArgs e)
         {
-
+            choosenSequenceStatusCheckedList.Items.Add("Success");
         }
 
         public void OnTestEnded(object sender, TestEventArgs e)
@@ -170,69 +247,17 @@ namespace WindowsFormsApp1
                 StartTest(true);
             }
         }
+
         #endregion
 
-        private void addSequence_Click(object sender, EventArgs e)
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (sequencesList.SelectedItem != null)
+            choosenSequenceStatusCheckedList.Items.Clear();
+
+            foreach (var itm in choosenSequenceList.Items)
             {
-                selectedList.Items.Add(sequencesList.SelectedItem);
+                choosenSequenceStatusCheckedList.Items.Add(itm);
             }
         }
-
-        private void removeSequence_Click(object sender, EventArgs e)
-        {
-            if (selectedList.SelectedItem != null)
-            {
-                selectedList.Items.Remove(selectedList.SelectedItem);
-            }
-
-        }
-
-        private void moveSequenceUp_Click(object sender, EventArgs e)
-        {
-            if (selectedList.SelectedItem != null)
-            {
-
-                if (selectedList.SelectedIndex != 0)
-                {
-                    int i = selectedList.SelectedIndex;
-
-                    // 1. copying item to another variable
-                    // 2. overwriting it with item on higher position
-                    // 3. overwriting item on higher position with variable
-                    var selectedItem = selectedList.Items[i];
-                    selectedList.Items[i] = selectedList.Items[i - 1];
-                    selectedList.Items[i - 1] = selectedItem;
-
-                    selectedList.SetSelected(i - 1, true);
-                }
-
-            }
-
-        }
-
-        private void moveSequenceDown_Click(object sender, EventArgs e)
-        {
-            if (selectedList.SelectedItem != null)
-            {
-
-                if (selectedList.SelectedIndex != selectedList.Items.Count - 1 )
-                {
-                    int i = selectedList.SelectedIndex;
-
-                    // 1. copying item to another variable
-                    // 2. overwriting it with item on lower position
-                    // 3. overwriting item on lower position with variable
-                    var selectedItem = selectedList.Items[i];
-                    selectedList.Items[i] = selectedList.Items[i + 1];
-                    selectedList.Items[i + 1] = selectedItem;
-
-                    selectedList.SetSelected(i + 1, true);
-                }
-
-            }
-        }
-
     }
 }

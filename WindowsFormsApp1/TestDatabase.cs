@@ -52,7 +52,7 @@ namespace WindowsFormsApp1
             rawJson = System.IO.File.ReadAllText(testStepDefinitionsFilePath);
 
             StepDefinitions testDefinitions = new StepDefinitions();
-            testDefinitions = JsonConvert.DeserializeObject<TestStep>(rawJson);
+            testDefinitions = JsonConvert.DeserializeObject<StepDefinitions>(rawJson);
 
             return testDefinitions.TestStepDefinitions;
         }

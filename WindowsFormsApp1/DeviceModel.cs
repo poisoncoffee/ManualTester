@@ -11,11 +11,23 @@ namespace WindowsFormsApp1
 {
     class DeviceModel
     {
+        private static string executedDirectoryPath = "";
+
+
         static DeviceModel()
         {
-
+            executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
 
+        public struct Logcat
+        {
+            public int processID { get; set; }
+            public string logcatID { get; set; }
+            public string logcatPath { get; set; }
+            public List<string> logs { get; set; }
+        }
+
+        #region adbMethods
         //runs cmd executing provided command and returns cmd output
         private static StreamReader ExecuteCommand(string command)
         {
@@ -32,9 +44,64 @@ namespace WindowsFormsApp1
             cmd.StandardInput.WriteLine(command);
             StreamReader output = cmd.StandardOutput;
             cmd.StandardInput.WriteLine("exit");
+            cmd.WaitForExit();
             return output;
         }
- 
+
+        private static string ExecuteCommandToFile(string command, string fileName)
+        {
+
+            string filePath = executedDirectoryPath + "/" + fileName + ".txt";
+            string filePathCopy = filePath + ".copy.txt";
+
+            //deletes old files if they exist
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
+            if (File.Exists(filePathCopy))
+            {
+                File.Delete(filePathCopy);
+            }
+
+
+            //starting cmd process
+            Process cmd = new Process();
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.Start();
+
+            //generating adb devices output file
+            command += " > " + filePath;
+            cmd.StandardInput.WriteLine(command);
+            cmd.Close();
+
+
+            while(!File.Exists(filePath))
+            {
+                // Does nothing. This loop waits for the file to start existing which does not happen immediately.
+                Thread.Sleep(100);
+            }
+
+            File.Copy(filePath, filePathCopy);
+
+            while (!File.Exists(filePathCopy))
+            {
+                // Does nothing. This loop waits for the file to start existing which does not happen immediately.
+                Thread.Sleep(100);
+            }
+
+            //FileStream file = new FileStream(filePathCopy, FileMode.Open, FileAccess.ReadWrite);
+            StreamReader file = new StreamReader(filePathCopy);
+            string output = file.ReadToEnd();
+            file.Close();        
+            return output;
+        }
+
         //if device has correct status and is ready for testing
         public static bool IsDeviceReady()
         { 
@@ -122,24 +189,22 @@ namespace WindowsFormsApp1
         public static bool LaunchApp(string packagename)
         {
             TestDatabase database = TestDatabase.Instance;
-            StreamReader sr = ExecuteCommand("adb shell am start -n " + packagename + "/" + database.GetMainActivityName(packagename) );
+            string command = "adb shell am start -n " + packagename + "/" + database.GetMainActivityName(packagename);
+            string launchAppResult = ExecuteCommandToFile(command, "launchAppResult");
 
-            string tempLine = "";
-            while (sr.Peek() != -1)
-            {
-                tempLine = sr.ReadLine();
-                if (tempLine.Contains("Error") || tempLine.Contains("error") || tempLine.Contains("Exception") || tempLine.Contains("exception"))
-                    return false;
-            }
+            if (launchAppResult.Contains("Error") || launchAppResult.Contains("error") || launchAppResult.Contains("Exception") || launchAppResult.Contains("exception"))
+                return false;
 
             return true;
 
 
         }
 
+        //not really working because adb shell cmd package list packages returns output that never ends
         public static bool IsAppInstalled(string packagename)
         {
-            StreamReader sr = ExecuteCommand("adb shell pm list packages -3");
+            string command = "adb shell cmd package list packages";
+            StreamReader sr = ExecuteCommand(command);
 
             string tempLine = "";
             while (sr.Peek() != -1)
@@ -150,7 +215,134 @@ namespace WindowsFormsApp1
                 }
 
             return false;
+        }
+
+        //gets this Android process's ID
+        public static string GetProcessPID(string packagename)
+        {
+            string processID = "";
+            int pseudoTimer = 20;
+
+            while (pseudoTimer > 0)
+            {
+                string command = "adb shell pidof -s " + packagename;
+                processID = ExecuteCommandToFile(command, "GetProcessPID");
+
+                if (processID != "")
+                    {
+                    processID = RemoveNonNumericFromString(processID);
+                    return processID;
+                    }
+
+                //launching the process may take time so if no pid was found it retries 20 times and sleeps for 500 ms which gives 10 seconds for an app to launch.
+                Thread.Sleep(500);
+                pseudoTimer--;
+            }
+
+            throw new ArgumentException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
 
         }
+
+        //inputs tap on the screen at the given coordinates
+        public static void InputTap(int x, int y)
+        {
+            string command = "adb shell input tap " + x + " " + y;
+            ExecuteCommand(command);
+        }
+        #endregion
+
+        #region LogcatLogic
+
+        //returns process name; you need to use this process name to end the logcat
+        public static Logcat BeginLogcat(string processPID, string packagename)
+        {
+            Logcat logcat = new Logcat();
+            // logcat.logcatID = packagename + "_" + DateTime.Now.TimeOfDay.ToString();
+            logcat.logcatID = "logcat2";
+                logcat.logcatPath = executedDirectoryPath + @"\" + logcat.logcatID + ".txt";
+            string command = "adb logcat --pid=" + processPID + " -v time > " + logcat.logcatID + ".txt"; //gets logcat for specified pid -v time also prints timestamp
+
+            //clears current logcat
+            ExecuteCommand("adb logcat -c");
+
+            //runs new process
+            Process cmd = new Process();
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.Start();          
+            cmd.StandardInput.WriteLine(command);
+            logcat.processID = cmd.Id;
+
+            return logcat;
+        }
+
+        public static void EndLogcat (Logcat logcat)
+        {
+            Process cmd = Process.GetProcessById(logcat.processID);
+            cmd.Kill();
+        }
+
+        //refreshes logcat starting 
+        public static Logcat UpdateLogcat(Logcat logcat, int offset)
+        {
+            Thread.Sleep(3000);
+            string path = @"C:\Users\poisoncoffee\source\repos\QA_Intern\WindowsFormsApp1\bin\Debug" + @"\" + logcat.logcatID + ".txt";
+            string pathCopy = path + ".copy.txt";
+            File.Copy(path, pathCopy);
+            StreamReader file = new StreamReader(pathCopy);
+            string readLine = "";
+            while (offset > 0)
+            {
+                file.ReadLine();
+                offset--;
+            }
+
+            while(!file.EndOfStream)
+            {
+                tempString = file.ReadLine(readLine);
+                logcat.logs.Add(readLine);
+            }
+
+            file.Close();
+            return logcat;
+        }
+
+        #endregion
+
+        #region Helpers
+
+        public static string RemoveWhiteSpacesFromString(string input)
+        {
+            //first, replaces all kind of possible whitespaces to ' ' <-- this space
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsWhiteSpace(input[i]))
+                {
+                    input.Replace(input[i], ' ');
+                }
+            }
+
+            //second, replaces this particular space whith empty
+            input.Replace(" ", string.Empty);
+            return input;
+        }
+
+        public static string RemoveNonNumericFromString(string input)
+        {
+            //first, replaces all kind of possible whitespaces to 'a'
+            string output = "";
+            foreach (char c in input)
+            {
+                if (char.IsNumber(c))
+                {
+                    output += c;
+                }
+            }
+            return output;
+        }
+
+        #endregion
     }
 }

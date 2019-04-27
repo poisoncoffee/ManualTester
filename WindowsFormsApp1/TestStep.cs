@@ -13,19 +13,19 @@ namespace WindowsFormsApp1
         Command,
     }
 
-    public class TestStep : StepDefinitions
+    public class TestStep
     {
-        public string testStepType { get; private set; }
-
-        public string testStepID { get; private set; }
-        public string conditionLog { get; private set; }
-        public string confirmationLog { get; private set; }
-
         public TestDatabase.TestAction actionIfSucceeded;  //what to do if step succeeded
         public TestDatabase.TestAction actionIfFailed;   //what to do if condition or confirmation is absent
 
-        public double posY { get; private set; }
-        public double posX { get; private set; }
+        public string testStepType;
+
+        public string testStepID;
+        public string conditionLog;
+        public string confirmationLog;
+
+        public int posY;
+        public int posX;
 
     }
 }

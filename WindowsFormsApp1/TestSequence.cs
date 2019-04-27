@@ -8,7 +8,7 @@ namespace WindowsFormsApp1
 {
     public class TestSequence
     {
-        public string name;
+        public string testSequenceID;
         public List<string> StepList;
     }
 }

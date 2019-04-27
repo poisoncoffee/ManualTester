@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApp1
 {
-    partial class TestSelectionForm
+    partial class TestController
     {
         /// <summary>
         /// Required designer variable.
@@ -33,13 +33,21 @@
             this.connectedDeviceIDLabel = new System.Windows.Forms.Label();
             this.connectedDeviceRefreshButton = new System.Windows.Forms.Button();
             this.loadSequencesButton = new System.Windows.Forms.Button();
-            this.selectedList = new System.Windows.Forms.ListBox();
+            this.choosenSequenceList = new System.Windows.Forms.ListBox();
             this.addSequence = new System.Windows.Forms.Button();
             this.removeSequence = new System.Windows.Forms.Button();
-            this.sequencesList = new System.Windows.Forms.ListBox();
+            this.sequenceDefinitionsList = new System.Windows.Forms.ListBox();
             this.moveSequenceDown = new System.Windows.Forms.Button();
             this.moveSequenceUp = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.choosenSequenceStatusCheckedList = new System.Windows.Forms.CheckedListBox();
+            this.tabControl.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // comboBoxWithAvailableApps
@@ -48,9 +56,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxWithAvailableApps.FormattingEnabled = true;
-            this.comboBoxWithAvailableApps.Location = new System.Drawing.Point(28, 31);
+            this.comboBoxWithAvailableApps.Location = new System.Drawing.Point(6, 6);
             this.comboBoxWithAvailableApps.Name = "comboBoxWithAvailableApps";
-            this.comboBoxWithAvailableApps.Size = new System.Drawing.Size(274, 21);
+            this.comboBoxWithAvailableApps.Size = new System.Drawing.Size(268, 21);
             this.comboBoxWithAvailableApps.TabIndex = 2;
             // 
             // connectedDeviceLabel
@@ -59,7 +67,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectedDeviceLabel.AutoSize = true;
-            this.connectedDeviceLabel.Location = new System.Drawing.Point(382, 72);
+            this.connectedDeviceLabel.Location = new System.Drawing.Point(34, 438);
             this.connectedDeviceLabel.Name = "connectedDeviceLabel";
             this.connectedDeviceLabel.Size = new System.Drawing.Size(97, 13);
             this.connectedDeviceLabel.TabIndex = 4;
@@ -72,7 +80,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectedDeviceIDLabel.AutoSize = true;
-            this.connectedDeviceIDLabel.Location = new System.Drawing.Point(485, 72);
+            this.connectedDeviceIDLabel.Location = new System.Drawing.Point(137, 438);
             this.connectedDeviceIDLabel.Name = "connectedDeviceIDLabel";
             this.connectedDeviceIDLabel.Size = new System.Drawing.Size(33, 13);
             this.connectedDeviceIDLabel.TabIndex = 9;
@@ -80,7 +88,7 @@
             // 
             // connectedDeviceRefreshButton
             // 
-            this.connectedDeviceRefreshButton.Location = new System.Drawing.Point(354, 66);
+            this.connectedDeviceRefreshButton.Location = new System.Drawing.Point(6, 432);
             this.connectedDeviceRefreshButton.Name = "connectedDeviceRefreshButton";
             this.connectedDeviceRefreshButton.Size = new System.Drawing.Size(22, 23);
             this.connectedDeviceRefreshButton.TabIndex = 10;
@@ -90,25 +98,25 @@
             // 
             // loadSequencesButton
             // 
-            this.loadSequencesButton.Location = new System.Drawing.Point(28, 67);
+            this.loadSequencesButton.Location = new System.Drawing.Point(6, 33);
             this.loadSequencesButton.Name = "loadSequencesButton";
-            this.loadSequencesButton.Size = new System.Drawing.Size(273, 23);
+            this.loadSequencesButton.Size = new System.Drawing.Size(268, 23);
             this.loadSequencesButton.TabIndex = 12;
             this.loadSequencesButton.Text = "Load Actions";
             this.loadSequencesButton.UseVisualStyleBackColor = true;
             this.loadSequencesButton.Click += new System.EventHandler(this.loadSequencesButton_Click);
             // 
-            // selectedList
+            // choosenSequenceList
             // 
-            this.selectedList.FormattingEnabled = true;
-            this.selectedList.Location = new System.Drawing.Point(350, 116);
-            this.selectedList.Name = "selectedList";
-            this.selectedList.Size = new System.Drawing.Size(266, 303);
-            this.selectedList.TabIndex = 13;
+            this.choosenSequenceList.FormattingEnabled = true;
+            this.choosenSequenceList.Location = new System.Drawing.Point(332, 71);
+            this.choosenSequenceList.Name = "choosenSequenceList";
+            this.choosenSequenceList.Size = new System.Drawing.Size(266, 381);
+            this.choosenSequenceList.TabIndex = 13;
             // 
             // addSequence
             // 
-            this.addSequence.Location = new System.Drawing.Point(307, 216);
+            this.addSequence.Location = new System.Drawing.Point(280, 208);
             this.addSequence.Name = "addSequence";
             this.addSequence.Size = new System.Drawing.Size(37, 36);
             this.addSequence.TabIndex = 14;
@@ -118,7 +126,7 @@
             // 
             // removeSequence
             // 
-            this.removeSequence.Location = new System.Drawing.Point(307, 275);
+            this.removeSequence.Location = new System.Drawing.Point(280, 267);
             this.removeSequence.Name = "removeSequence";
             this.removeSequence.Size = new System.Drawing.Size(37, 36);
             this.removeSequence.TabIndex = 18;
@@ -126,17 +134,17 @@
             this.removeSequence.UseVisualStyleBackColor = true;
             this.removeSequence.Click += new System.EventHandler(this.removeSequence_Click);
             // 
-            // sequencesList
+            // sequenceDefinitionsList
             // 
-            this.sequencesList.FormattingEnabled = true;
-            this.sequencesList.Location = new System.Drawing.Point(33, 116);
-            this.sequencesList.Name = "sequencesList";
-            this.sequencesList.Size = new System.Drawing.Size(268, 303);
-            this.sequencesList.TabIndex = 22;
+            this.sequenceDefinitionsList.FormattingEnabled = true;
+            this.sequenceDefinitionsList.Location = new System.Drawing.Point(6, 71);
+            this.sequenceDefinitionsList.Name = "sequenceDefinitionsList";
+            this.sequenceDefinitionsList.Size = new System.Drawing.Size(268, 381);
+            this.sequenceDefinitionsList.TabIndex = 22;
             // 
             // moveSequenceDown
             // 
-            this.moveSequenceDown.Location = new System.Drawing.Point(622, 275);
+            this.moveSequenceDown.Location = new System.Drawing.Point(604, 267);
             this.moveSequenceDown.Name = "moveSequenceDown";
             this.moveSequenceDown.Size = new System.Drawing.Size(37, 36);
             this.moveSequenceDown.TabIndex = 24;
@@ -146,7 +154,7 @@
             // 
             // moveSequenceUp
             // 
-            this.moveSequenceUp.Location = new System.Drawing.Point(622, 216);
+            this.moveSequenceUp.Location = new System.Drawing.Point(604, 208);
             this.moveSequenceUp.Name = "moveSequenceUp";
             this.moveSequenceUp.Size = new System.Drawing.Size(37, 36);
             this.moveSequenceUp.TabIndex = 23;
@@ -159,36 +167,91 @@
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(478, 437);
+            this.button1.Location = new System.Drawing.Point(6, 32);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(139, 51);
+            this.button1.Size = new System.Drawing.Size(212, 25);
             this.button1.TabIndex = 0;
             this.button1.Text = "RUN TEST";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // TestSelectionForm
+            // tabControl
+            // 
+            this.tabControl.Controls.Add(this.tabPage1);
+            this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Location = new System.Drawing.Point(12, 12);
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(668, 487);
+            this.tabControl.TabIndex = 25;
+            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.comboBoxWithAvailableApps);
+            this.tabPage1.Controls.Add(this.moveSequenceDown);
+            this.tabPage1.Controls.Add(this.loadSequencesButton);
+            this.tabPage1.Controls.Add(this.moveSequenceUp);
+            this.tabPage1.Controls.Add(this.sequenceDefinitionsList);
+            this.tabPage1.Controls.Add(this.removeSequence);
+            this.tabPage1.Controls.Add(this.choosenSequenceList);
+            this.tabPage1.Controls.Add(this.addSequence);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(660, 461);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.textBox1);
+            this.tabPage2.Controls.Add(this.choosenSequenceStatusCheckedList);
+            this.tabPage2.Controls.Add(this.connectedDeviceRefreshButton);
+            this.tabPage2.Controls.Add(this.button1);
+            this.tabPage2.Controls.Add(this.connectedDeviceLabel);
+            this.tabPage2.Controls.Add(this.connectedDeviceIDLabel);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(660, 461);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(250, 32);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(404, 389);
+            this.textBox1.TabIndex = 12;
+            // 
+            // choosenSequenceStatusCheckedList
+            // 
+            this.choosenSequenceStatusCheckedList.Enabled = false;
+            this.choosenSequenceStatusCheckedList.FormattingEnabled = true;
+            this.choosenSequenceStatusCheckedList.Location = new System.Drawing.Point(6, 72);
+            this.choosenSequenceStatusCheckedList.Name = "choosenSequenceStatusCheckedList";
+            this.choosenSequenceStatusCheckedList.Size = new System.Drawing.Size(212, 349);
+            this.choosenSequenceStatusCheckedList.TabIndex = 11;
+            this.choosenSequenceStatusCheckedList.Click += new System.EventHandler(this.tabControl_SelectedIndexChanged);
+            // 
+            // TestController
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(692, 511);
-            this.Controls.Add(this.moveSequenceDown);
-            this.Controls.Add(this.moveSequenceUp);
-            this.Controls.Add(this.sequencesList);
-            this.Controls.Add(this.removeSequence);
-            this.Controls.Add(this.addSequence);
-            this.Controls.Add(this.selectedList);
-            this.Controls.Add(this.loadSequencesButton);
-            this.Controls.Add(this.connectedDeviceRefreshButton);
-            this.Controls.Add(this.connectedDeviceIDLabel);
-            this.Controls.Add(this.connectedDeviceLabel);
-            this.Controls.Add(this.comboBoxWithAvailableApps);
-            this.Controls.Add(this.button1);
-            this.Name = "TestSelectionForm";
+            this.ClientSize = new System.Drawing.Size(696, 509);
+            this.Controls.Add(this.tabControl);
+            this.Name = "TestController";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.tabControl.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -198,13 +261,18 @@
         private System.Windows.Forms.Label connectedDeviceIDLabel;
         private System.Windows.Forms.Button connectedDeviceRefreshButton;
         private System.Windows.Forms.Button loadSequencesButton;
-        private System.Windows.Forms.ListBox selectedList;
+        private System.Windows.Forms.ListBox choosenSequenceList;
         private System.Windows.Forms.Button addSequence;
         private System.Windows.Forms.Button removeSequence;
-        private System.Windows.Forms.ListBox sequencesList;
+        private System.Windows.Forms.ListBox sequenceDefinitionsList;
         private System.Windows.Forms.Button moveSequenceDown;
         private System.Windows.Forms.Button moveSequenceUp;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TabControl tabControl;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.CheckedListBox choosenSequenceStatusCheckedList;
     }
 }
 

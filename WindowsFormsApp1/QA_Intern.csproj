@@ -52,17 +52,11 @@
     <Compile Include="StepDefinitions.cs" />
     <Compile Include="TestDatabase.cs" />
     <Compile Include="DeviceModel.cs" />
-    <Compile Include="TestMonitorForm.cs">
+    <Compile Include="TestController.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TestMonitorForm.Designer.cs">
-      <DependentUpon>TestMonitorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TestSelectionForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestSelectionForm.Designer.cs">
-      <DependentUpon>TestSelectionForm.cs</DependentUpon>
+    <Compile Include="TestController.Designer.cs">
+      <DependentUpon>TestController.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,11 +64,8 @@
     <Compile Include="TestSequence.cs" />
     <Compile Include="SequenceDefinitions.cs" />
     <Compile Include="TestStep.cs" />
-    <EmbeddedResource Include="TestMonitorForm.resx">
-      <DependentUpon>TestMonitorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestSelectionForm.resx">
-      <DependentUpon>TestSelectionForm.cs</DependentUpon>
+    <EmbeddedResource Include="TestController.resx">
+      <DependentUpon>TestController.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
