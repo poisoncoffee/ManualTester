@@ -6,23 +6,18 @@ using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
-    public enum StepType
-    {
-        Tap,
-        Wait,
-        Command,
-    }
 
     public class TestStep
     {
-        public TestDatabase.TestAction actionIfSucceeded;  //what to do if step succeeded
-        public TestDatabase.TestAction actionIfFailed;   //what to do if condition or confirmation is absent
-
-        public string testStepType;
+        public TestDatabase.TestAction actionIfSucceeded;   //What to do if step succeeded
+        public TestDatabase.TestAction actionIfFailed;      //What to do if condition or confirmation is absent
 
         public string testStepID;
-        public string conditionLog;
-        public string confirmationLog;
+        public List<string> conditionLog;
+        public List<string> confirmationLog;
+
+        //Time in miliseconds. If no confirmation arrived after this time, step is recognized as failed. Lowest value is 50 ms
+        public int terminationTime;
 
         public int posY;
         public int posX;

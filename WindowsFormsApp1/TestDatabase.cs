@@ -35,6 +35,8 @@ namespace WindowsFormsApp1
         {
             Next,
             Stop,
+            Back,
+            BackAndRetry,
             Retry
         }
 

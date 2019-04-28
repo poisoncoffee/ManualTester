@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.comboBoxWithAvailableApps = new System.Windows.Forms.ComboBox();
-            this.connectedDeviceLabel = new System.Windows.Forms.Label();
             this.connectedDeviceIDLabel = new System.Windows.Forms.Label();
             this.connectedDeviceRefreshButton = new System.Windows.Forms.Button();
             this.loadSequencesButton = new System.Windows.Forms.Button();
@@ -43,7 +42,8 @@
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.tipLabel = new System.Windows.Forms.Label();
+            this.consoleOutput = new System.Windows.Forms.TextBox();
             this.choosenSequenceStatusCheckedList = new System.Windows.Forms.CheckedListBox();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -61,26 +61,13 @@
             this.comboBoxWithAvailableApps.Size = new System.Drawing.Size(268, 21);
             this.comboBoxWithAvailableApps.TabIndex = 2;
             // 
-            // connectedDeviceLabel
-            // 
-            this.connectedDeviceLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.connectedDeviceLabel.AutoSize = true;
-            this.connectedDeviceLabel.Location = new System.Drawing.Point(34, 438);
-            this.connectedDeviceLabel.Name = "connectedDeviceLabel";
-            this.connectedDeviceLabel.Size = new System.Drawing.Size(97, 13);
-            this.connectedDeviceLabel.TabIndex = 4;
-            this.connectedDeviceLabel.Text = "Connected device:";
-            this.connectedDeviceLabel.Click += new System.EventHandler(this.label1_Click);
-            // 
             // connectedDeviceIDLabel
             // 
             this.connectedDeviceIDLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectedDeviceIDLabel.AutoSize = true;
-            this.connectedDeviceIDLabel.Location = new System.Drawing.Point(137, 438);
+            this.connectedDeviceIDLabel.Location = new System.Drawing.Point(34, 438);
             this.connectedDeviceIDLabel.Name = "connectedDeviceIDLabel";
             this.connectedDeviceIDLabel.Size = new System.Drawing.Size(33, 13);
             this.connectedDeviceIDLabel.TabIndex = 9;
@@ -206,11 +193,11 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.textBox1);
+            this.tabPage2.Controls.Add(this.tipLabel);
+            this.tabPage2.Controls.Add(this.consoleOutput);
             this.tabPage2.Controls.Add(this.choosenSequenceStatusCheckedList);
             this.tabPage2.Controls.Add(this.connectedDeviceRefreshButton);
             this.tabPage2.Controls.Add(this.button1);
-            this.tabPage2.Controls.Add(this.connectedDeviceLabel);
             this.tabPage2.Controls.Add(this.connectedDeviceIDLabel);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -220,13 +207,26 @@
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // textBox1
+            // tipLabel
             // 
-            this.textBox1.Location = new System.Drawing.Point(250, 32);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(404, 389);
-            this.textBox1.TabIndex = 12;
+            this.tipLabel.AutoSize = true;
+            this.tipLabel.Location = new System.Drawing.Point(249, 438);
+            this.tipLabel.Name = "tipLabel";
+            this.tipLabel.Size = new System.Drawing.Size(405, 13);
+            this.tipLabel.TabIndex = 13;
+            this.tipLabel.Text = "Click on Console and press any key to pause the updating. Press any key to resume" +
+    ".";
+            // 
+            // consoleOutput
+            // 
+            this.consoleOutput.Location = new System.Drawing.Point(250, 32);
+            this.consoleOutput.Multiline = true;
+            this.consoleOutput.Name = "consoleOutput";
+            this.consoleOutput.ReadOnly = true;
+            this.consoleOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.consoleOutput.Size = new System.Drawing.Size(404, 389);
+            this.consoleOutput.TabIndex = 12;
+            this.consoleOutput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.consoleOutput_KeyPress);
             // 
             // choosenSequenceStatusCheckedList
             // 
@@ -257,7 +257,6 @@
 
         #endregion
         private System.Windows.Forms.ComboBox comboBoxWithAvailableApps;
-        private System.Windows.Forms.Label connectedDeviceLabel;
         private System.Windows.Forms.Label connectedDeviceIDLabel;
         private System.Windows.Forms.Button connectedDeviceRefreshButton;
         private System.Windows.Forms.Button loadSequencesButton;
@@ -271,8 +270,9 @@
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox consoleOutput;
         private System.Windows.Forms.CheckedListBox choosenSequenceStatusCheckedList;
+        private System.Windows.Forms.Label tipLabel;
     }
 }
 

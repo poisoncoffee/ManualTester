@@ -115,38 +115,46 @@ namespace WindowsFormsApp1
         {
             //begin adb logcat
             DeviceModel.Logcat logcat = DeviceModel.BeginLogcat(processPID, packagename);
-            logcat = DeviceModel.UpdateLogcat(logcat, 0);
 
             int logcatOffset = 0;
             foreach(TestStep step in testStepsPlan)
             {
+
                 bool isConditionPresent = false;
+                bool isConfirmationPresent = false;
+                int alreadyWaitedFor = 0;
                 while (!isConditionPresent)
                 {
-                    //open logcat
-
-                    long lastPosition = 0;
-
-                   /* FileStream file = new FileStream("dd.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    file.Position
-                    file.Seek
-                    file.
-                    
-                   
-
-                    file
+                    logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
+                    while (logcatOffset < logcat.logs.Count && alreadyWaitedFor < step.terminationTime)
                     {
-                        
-                    }
-                    */
+                        OnLogRead(logcat.logs[logcatOffset]);
 
+                        if (logcat.logs[logcatOffset].Contains(step.conditionLog))
+                        {
+                            isConditionPresent = true;
+                            DeviceModel.InputTap(step.posX, step.posY);
+                            logcatOffset++;
+                            break;
+                        };
+
+                        logcatOffset++;
+                        Thread.Sleep(50);
+                        alreadyWaitedFor += 50;
+                    }
+                }
+
+                while(!isConfirmationPresent)
+                {
+                    logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
+                    while (logcatOffset < logcat.logs.Count)
+                    {
+                        OnLogRead(logcat.logs[logcatOffset]);
+                    }
                 }
 
 
-                    if (true) //if step conditionlog is present
-                    {
-                        DeviceModel.InputTap(step.posX, step.posY);
-                    }
+
                 
             }
         }
@@ -191,6 +199,16 @@ namespace WindowsFormsApp1
             if (AppLaunchFailed != null)
             {
                 AppLaunchFailed(this, new TestEventArgs() { argument = packagename });
+            }
+        }
+
+        public delegate void LogReadEventHandler(object sender, TestEventArgs e);
+        public event LogReadEventHandler LogRead;
+        protected virtual void OnLogRead(string log)
+        {
+            if (LogRead != null)
+            {
+                LogRead(this, new TestEventArgs() { argument = log });
             }
         }
 

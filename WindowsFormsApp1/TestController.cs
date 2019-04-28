@@ -12,6 +12,8 @@ namespace WindowsFormsApp1
     {
         private List<TestSequence> testSequencesList = new List<TestSequence>();
         private List<TestSequence> choosenSequencesList = new List<TestSequence>();
+        private List<string> consoleOutputBuffer = new List<string>();
+        private bool isUpdatingConsoleOutputAllowed = true;
 
 
         public TestController()
@@ -167,10 +169,19 @@ namespace WindowsFormsApp1
             }
         }
 
-        public void StartTest(bool force)
+
+        private void UpdateConsoleOutput(string log)
+        {
+            consoleOutput.AppendText(log);
+            consoleOutput.Text += Environment.NewLine;
+            consoleOutput.SelectionStart = consoleOutput.Text.Length;
+            consoleOutput.ScrollToCaret();
+        }
+
+        private void StartTest(bool force)
         {
 
-            ChangeEnabled(false);
+           // ChangeEnabled(false);
 
             string packagename = comboBoxWithAvailableApps.Text;
             var testManager = new TestManager(packagename);
@@ -180,14 +191,13 @@ namespace WindowsFormsApp1
             testManager.StepSucceeded += OnStepSucceeded;
             testManager.DeviceNotConnected += OnDeviceNotConnected;
             testManager.AppLaunchFailed += OnAppLaunchFailed;
+            testManager.LogRead += OnLogRead;
 
             //force set to true launches test despite fact that app could not be opened via adb - assumes the user launched the app manually. See OnAppLaunchFailed event
             if (force)
                 testManager.forceTest = true;
 
-
             List<string> choosenSequences = choosenSequenceList.Items.Cast<string>().ToList();
-
             Task test = new Task(() => { testManager.CreateTest(choosenSequences); } );
 
             if (choosenSequenceStatusCheckedList != null)
@@ -248,6 +258,27 @@ namespace WindowsFormsApp1
             }
         }
 
+        public void OnLogRead(object sender, TestEventArgs e)
+        {
+            string log = string.Copy(e.argument);
+            if (consoleOutput.InvokeRequired)
+            {
+                TestEventArgs arg = new TestEventArgs() { argument = e.argument };
+                consoleOutput.Invoke(new TestManager.LogReadEventHandler(OnLogRead), sender, e);
+            }
+            else
+            {
+                if (isUpdatingConsoleOutputAllowed)
+                {
+                    UpdateConsoleOutput(log);
+                }
+                else if (!isUpdatingConsoleOutputAllowed)
+                {
+                    consoleOutputBuffer.Add(log);
+                }
+            }
+        }
+
         #endregion
 
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
@@ -259,5 +290,25 @@ namespace WindowsFormsApp1
                 choosenSequenceStatusCheckedList.Items.Add(itm);
             }
         }
+
+        private void consoleOutput_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (isUpdatingConsoleOutputAllowed)
+            {
+                isUpdatingConsoleOutputAllowed = false;
+            }
+            else if(!isUpdatingConsoleOutputAllowed)
+            {
+                isUpdatingConsoleOutputAllowed = true;
+
+                foreach(string log in consoleOutputBuffer)
+                {
+                    UpdateConsoleOutput(log);
+                }
+
+                consoleOutputBuffer.Clear();                
+            }
+        }
+
     }
 }

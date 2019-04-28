@@ -87,7 +87,7 @@ namespace WindowsFormsApp1
                 Thread.Sleep(100);
             }
 
-            File.Copy(filePath, filePathCopy);
+            File.Copy(filePath, filePathCopy, true);
 
             while (!File.Exists(filePathCopy))
             {
@@ -221,7 +221,7 @@ namespace WindowsFormsApp1
         public static string GetProcessPID(string packagename)
         {
             string processID = "";
-            int pseudoTimer = 20;
+            int pseudoTimer = 30;
 
             while (pseudoTimer > 0)
             {
@@ -257,6 +257,7 @@ namespace WindowsFormsApp1
         public static Logcat BeginLogcat(string processPID, string packagename)
         {
             Logcat logcat = new Logcat();
+            logcat.logs = new List<string>();
             // logcat.logcatID = packagename + "_" + DateTime.Now.TimeOfDay.ToString();
             logcat.logcatID = "logcat2";
                 logcat.logcatPath = executedDirectoryPath + @"\" + logcat.logcatID + ".txt";
@@ -290,7 +291,7 @@ namespace WindowsFormsApp1
             Thread.Sleep(3000);
             string path = @"C:\Users\poisoncoffee\source\repos\QA_Intern\WindowsFormsApp1\bin\Debug" + @"\" + logcat.logcatID + ".txt";
             string pathCopy = path + ".copy.txt";
-            File.Copy(path, pathCopy);
+            File.Copy(path, pathCopy, true);
             StreamReader file = new StreamReader(pathCopy);
             string readLine = "";
             while (offset > 0)
@@ -301,7 +302,7 @@ namespace WindowsFormsApp1
 
             while(!file.EndOfStream)
             {
-                tempString = file.ReadLine(readLine);
+                readLine = file.ReadLine();
                 logcat.logs.Add(readLine);
             }
 
