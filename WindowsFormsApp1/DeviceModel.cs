@@ -12,24 +12,30 @@ namespace WindowsFormsApp1
     class DeviceModel
     {
         private static string executedDirectoryPath = "";
+        private static string briefLogcatSourcePath = "";
+        private static string detailedLogcatSourcePath = "";
 
 
         static DeviceModel()
         {
             executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            briefLogcatSourcePath = executedDirectoryPath + "/briefLogcat.txt";         //is hardcoded in startBriefLogcat.bat file too
+            detailedLogcatSourcePath = executedDirectoryPath + "/detailedLogcat.txt";   //is hardcoded in startDetailedLogcat.bat file too
         }
 
         public struct Logcat
         {
-            public int processID { get; set; }
-            public string logcatID { get; set; }
-            public string logcatPath { get; set; }
+            public int briefLogcatProcessID { get; set; }
+            public int detailedLogcatProcessID { get; set; }
+            public string briefLogcatPath { get; set; }
+            public string detailedLogcatPath { get; set; }
             public List<string> logs { get; set; }
         }
 
         #region adbMethods
         //runs cmd executing provided command and returns cmd output
-        private static StreamReader ExecuteCommand(string command)
+        //not working well
+        private static StreamReader ExecuteCommandGetOutput(string command)
         {
             //starting cmd process
             Process cmd = new Process();
@@ -40,12 +46,24 @@ namespace WindowsFormsApp1
             cmd.StartInfo.CreateNoWindow = true;
             cmd.Start();
 
-            //getting adb devices output
+            //getting output
             cmd.StandardInput.WriteLine(command);
             StreamReader output = cmd.StandardOutput;
             cmd.StandardInput.WriteLine("exit");
             cmd.WaitForExit();
             return output;
+        }
+
+        public static void ExecuteCommand(string command)
+        {
+            Process cmd = new Process();
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.Start();
+            cmd.StandardInput.WriteLine(command);
+            cmd.Close();
         }
 
         private static string ExecuteCommandToFile(string command, string fileName)
@@ -106,7 +124,7 @@ namespace WindowsFormsApp1
         public static bool IsDeviceReady()
         { 
 
-            StreamReader sr = ExecuteCommand("adb devices");
+            StreamReader sr = ExecuteCommandGetOutput("adb devices");
 
             int devicesCount = 0;
             string tempLine = "";
@@ -144,7 +162,7 @@ namespace WindowsFormsApp1
         public static string GetDeviceStatus()
         {
 
-            StreamReader sr = ExecuteCommand("adb devices");
+            StreamReader sr = ExecuteCommandGetOutput("adb devices");
 
             int devicesCount = 0;
             string tempLine = "";
@@ -204,7 +222,7 @@ namespace WindowsFormsApp1
         public static bool IsAppInstalled(string packagename)
         {
             string command = "adb shell cmd package list packages";
-            StreamReader sr = ExecuteCommand(command);
+            StreamReader sr = ExecuteCommandGetOutput(command);
 
             string tempLine = "";
             while (sr.Peek() != -1)
@@ -247,52 +265,70 @@ namespace WindowsFormsApp1
         public static void InputTap(int x, int y)
         {
             string command = "adb shell input tap " + x + " " + y;
-            ExecuteCommand(command);
-        }
-        #endregion
 
-        #region LogcatLogic
-
-        //returns process name; you need to use this process name to end the logcat
-        public static Logcat BeginLogcat(string processPID, string packagename)
-        {
-            Logcat logcat = new Logcat();
-            logcat.logs = new List<string>();
-            // logcat.logcatID = packagename + "_" + DateTime.Now.TimeOfDay.ToString();
-            logcat.logcatID = "logcat2";
-                logcat.logcatPath = executedDirectoryPath + @"\" + logcat.logcatID + ".txt";
-            string command = "adb logcat --pid=" + processPID + " -v time > " + logcat.logcatID + ".txt"; //gets logcat for specified pid -v time also prints timestamp
-
-            //clears current logcat
-            ExecuteCommand("adb logcat -c");
-
-            //runs new process
             Process cmd = new Process();
             cmd.StartInfo.UseShellExecute = false;
             cmd.StartInfo.FileName = "cmd.exe";
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.CreateNoWindow = true;
-            cmd.Start();          
+            cmd.Start();
+
+            //getting output
             cmd.StandardInput.WriteLine(command);
-            logcat.processID = cmd.Id;
+            cmd.Close();
+        }
+        #endregion
+
+        #region LogcatLogic
+
+        //begin logcat starts two processes collecting two logcats. One of them is detailed which will be helpful for debugging and the second one is brief which is useful for this program.
+        //both of them need to be maintained
+        public static Logcat BeginLogcat(string processPID, string packagename)
+        {
+            Logcat logcat = new Logcat();
+            logcat.logs = new List<string>();
+
+            //clears current logcat
+            ExecuteCommand("adb logcat -c");
+
+            //There is a reason .bat is used here. Cmd.exe crashes and stops logcat after a few minutes.
+            //Runs new process for detailed logcat
+            Process cmdDetailed = new Process();
+            cmdDetailed.StartInfo.UseShellExecute = true;
+            cmdDetailed.StartInfo.FileName = "startDetailedLogcat.bat";
+            cmdDetailed.StartInfo.Arguments = processPID;
+            cmdDetailed.Start();
+            logcat.detailedLogcatProcessID = cmdDetailed.Id;
+            logcat.detailedLogcatPath = executedDirectoryPath + "/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+
+            //runs new process for brief logcat
+            Process cmdBrief = new Process();
+            cmdBrief.StartInfo.UseShellExecute = true;
+            cmdBrief.StartInfo.FileName = "startBriefLogcat.bat";            
+            cmdBrief.Start();
+            logcat.briefLogcatProcessID = cmdBrief.Id;
+            logcat.briefLogcatPath = executedDirectoryPath + "/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
 
             return logcat;
         }
 
         public static void EndLogcat (Logcat logcat)
         {
-            Process cmd = Process.GetProcessById(logcat.processID);
-            cmd.Kill();
+            Process cmdBrief = Process.GetProcessById(logcat.briefLogcatProcessID);
+            cmdBrief.Kill();
+            Process cmdDetailed = Process.GetProcessById(logcat.detailedLogcatProcessID);
+            cmdDetailed.Kill();
         }
 
         //refreshes logcat starting 
         public static Logcat UpdateLogcat(Logcat logcat, int offset)
         {
-            Thread.Sleep(3000);
-            string path = @"C:\Users\poisoncoffee\source\repos\QA_Intern\WindowsFormsApp1\bin\Debug" + @"\" + logcat.logcatID + ".txt";
-            string pathCopy = path + ".copy.txt";
-            File.Copy(path, pathCopy, true);
-            StreamReader file = new StreamReader(pathCopy);
+
+            //make copy from the "source" logcat (for both logcats)
+            File.Copy(briefLogcatSourcePath, logcat.briefLogcatPath, true);
+            File.Copy(detailedLogcatSourcePath, logcat.detailedLogcatPath, true);
+
+            StreamReader file = new StreamReader(logcat.briefLogcatPath);
             string readLine = "";
             while (offset > 0)
             {

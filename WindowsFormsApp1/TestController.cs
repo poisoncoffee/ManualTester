@@ -11,9 +11,10 @@ namespace WindowsFormsApp1
     public partial class TestController : Form
     {
         private List<TestSequence> testSequencesList = new List<TestSequence>();
-        private List<TestSequence> choosenSequencesList = new List<TestSequence>();
+        private List<string> choosenSequencesList = new List<string>();
         private List<string> consoleOutputBuffer = new List<string>();
         private bool isUpdatingConsoleOutputAllowed = true;
+        private Task test;
 
 
         public TestController()
@@ -197,12 +198,11 @@ namespace WindowsFormsApp1
             if (force)
                 testManager.forceTest = true;
 
-            List<string> choosenSequences = choosenSequenceList.Items.Cast<string>().ToList();
-            Task test = new Task(() => { testManager.CreateTest(choosenSequences); } );
+            choosenSequencesList = choosenSequenceList.Items.Cast<string>().ToList();
+            test = new Task(() => { testManager.CreateTest(choosenSequencesList); } );
 
-            if (choosenSequenceStatusCheckedList != null)
+            if (choosenSequencesList != null)
             {
-                //run test manager with appropiate packagename
                 test.Start();
             }
             else
@@ -219,17 +219,32 @@ namespace WindowsFormsApp1
         }
         #endregion
 
-
         #region TestRelatedEventActions
 
-        public void OnStepSucceeded(object sender, EventArgs e)
+        public void OnStepSucceeded(object sender, TestEventArgs e)
         {
-            choosenSequenceStatusCheckedList.Items.Add("Success");
+            if(choosenSequenceStatusCheckedList.InvokeRequired)
+            {
+                TestEventArgs arg = new TestEventArgs() { argument = e.argument };
+                choosenSequenceStatusCheckedList.Invoke(new TestManager.StepSucceededEventHandler(OnStepSucceeded), sender, e);
+            }
+            else
+            {
+                for(int i = 0; i < choosenSequenceStatusCheckedList.Items.Count - 1; i++)
+                {
+                    if (choosenSequenceStatusCheckedList.Items[i].ToString() == e.argument && !choosenSequenceStatusCheckedList.GetItemChecked(i));
+                    {
+                        choosenSequenceStatusCheckedList.SetItemChecked(i, true);
+                    }
+                }
+
+            }
         }
 
-        public void OnTestEnded(object sender, TestEventArgs e)
+        public void OnTestEnded(object sender, TestResultEventArgs e)
         {
-            MessageBox.Show(e.argument, "Test Ended", MessageBoxButtons.OK);
+            string message = "Test Ended not Implemented yet, reason: " + e.resultType.ToString();
+            MessageBox.Show(message, "Test Ended", MessageBoxButtons.OK);
             EndTest();
         }
 

@@ -13,6 +13,22 @@ namespace WindowsFormsApp1
         public string argument { get; set; }
     }
 
+    public class TestResultEventArgs : EventArgs
+    {
+        public enum ResultType
+        {
+            Success,
+            StepFailed,
+            DeviceDisconnected,
+            AppLaunchFailed,
+            LoadingDefinitionsFailed
+        }
+
+        public ResultType resultType { get; set; }
+        public int numSucceeded { get; set; }
+        public int numFailed { get; set; }
+    }
+
     public class TestManager
     {
         public bool testsCancelled = false;
@@ -25,6 +41,8 @@ namespace WindowsFormsApp1
 
         private List<TestStep> testStepDefinitions = new List<TestStep>();
         private List<TestSequence> testSequenceDefinitions = new List<TestSequence>();
+
+        private DeviceModel.Logcat logcat = new DeviceModel.Logcat();
 
         public TestManager(string givenPackagename)
         {
@@ -40,27 +58,35 @@ namespace WindowsFormsApp1
 
                     if(DeviceModel.LaunchApp(packagename) || forceTest)
                     {
-                        processPID = DeviceModel.GetProcessPID(packagename);
+                    processPID = DeviceModel.GetProcessPID(packagename);
+                    TestDatabase testDatabase = TestDatabase.Instance;
 
+                    try
+                    {
                         //loading tests definitions
-                        TestDatabase testDatabase = TestDatabase.Instance;
                         testStepDefinitions = testDatabase.LoadTestStepDefinitions(packagename);
                         testSequenceDefinitions = testDatabase.LoadTestSequenceDefinitions(packagename);
+                    }
+                    catch (Newtonsoft.Json.JsonException)
+                    {
+                        OnTestEnded(TestResultEventArgs.ResultType.LoadingDefinitionsFailed);
+                    }
+                    catch (System.IO.IOException)
+                    {
+                        OnTestEnded(TestResultEventArgs.ResultType.LoadingDefinitionsFailed);
+                    }
 
                         List<TestStep> testStepPlan = new List<TestStep>();
                         List<TestSequence> testSequencePlan = new List<TestSequence>();
                         testSequencePlan = ConvertStringsToSequences(choosenSequences);
                         testStepPlan = ConvertTestSequencesToTestSteps(testSequencePlan);
 
-                        ExecuteTestSteps(testStepPlan);
-                       
-
+                        ExecuteTestSteps(testStepPlan);            
                     } 
                     else
                     {
                         OnAppLaunchFailed(packagename);
                     }
-
             }
             else
             {
@@ -113,82 +139,114 @@ namespace WindowsFormsApp1
 
         void ExecuteTestSteps(List<TestStep> testStepsPlan)
         {
-            //begin adb logcat
-            DeviceModel.Logcat logcat = DeviceModel.BeginLogcat(processPID, packagename);
-
             int logcatOffset = 0;
+
+            //begin adb logcat
+            logcat = DeviceModel.BeginLogcat(processPID, packagename);
+
+            //now execute every step
             foreach(TestStep step in testStepsPlan)
             {
-
-                bool isConditionPresent = false;
-                bool isConfirmationPresent = false;
+                bool isStepSuccess = false;
                 int alreadyWaitedFor = 0;
-                while (!isConditionPresent)
+
+                //execute tap
+                DeviceModel.InputTap(step.posX, step.posY);
+
+                while (!isStepSuccess)
                 {
                     logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
-                    while (logcatOffset < logcat.logs.Count && alreadyWaitedFor < step.terminationTime)
-                    {
-                        OnLogRead(logcat.logs[logcatOffset]);
 
-                        if (logcat.logs[logcatOffset].Contains(step.conditionLog))
-                        {
-                            isConditionPresent = true;
-                            DeviceModel.InputTap(step.posX, step.posY);
-                            logcatOffset++;
-                            break;
-                        };
-
-                        logcatOffset++;
-                        Thread.Sleep(50);
-                        alreadyWaitedFor += 50;
-                    }
-                }
-
-                while(!isConfirmationPresent)
-                {
-                    logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
+                    //read log and check every line
                     while (logcatOffset < logcat.logs.Count)
                     {
                         OnLogRead(logcat.logs[logcatOffset]);
+
+                        foreach (string confirmation in step.confirmationLog)
+                        {
+                            if (logcat.logs[logcatOffset].Contains(confirmation))
+                            {
+                                isStepSuccess = true;
+                                logcatOffset++;
+                                goto StepSuccess;
+                            }
+                        }
+
+                        logcatOffset++;
+                    }
+
+                    //If no confirmation log was found, wait 50 ms before updating logcat again
+                    Thread.Sleep(100);
+                    alreadyWaitedFor += 100;
+                    if (alreadyWaitedFor > step.terminationTime)     //unless it times out
+                    {
+                        goto StepFailed;
                     }
                 }
 
+                StepSuccess:
+                {
+                    if(isStepSuccess)
+                    {
+                        ReactToStepSuccess(step);
+                    }
+                }
 
+                StepFailed:
+                {
+                    if (!isStepSuccess)
+                    {
+                        ReactToStepFailure(step);
 
-                
-            }
+                        //It checks if the device is disconnected to be sure it was not the cause of the failure.
+                        if (!DeviceModel.IsDeviceReady())
+                        {
+                            OnTestEnded(TestResultEventArgs.ResultType.DeviceDisconnected);
+                        }
+                    }
+                }
+           
+           }
+        }
+
+        private void ReactToStepSuccess (TestStep step)
+        {
+            OnStepSucceeded(step.testStepID);
+        }
+
+        private void ReactToStepFailure (TestStep step)
+        {
+
         }
 
         #region Events
 
-        public delegate void StepSucceededEventHandler(object sender, EventArgs e);
+        public delegate void StepSucceededEventHandler(object sender, TestEventArgs e);
         public event StepSucceededEventHandler StepSucceeded;
-        protected virtual void OnStepSucceeded()
+        protected virtual void OnStepSucceeded(string stepName)
         {
-            if (StepSucceeded != null)
-            {
-                StepSucceeded(this, EventArgs.Empty);
-            }
+                StepSucceeded(this, new TestEventArgs() { argument = stepName });
         }
 
-        public delegate void TestEndedEventHandler(object sender, TestEventArgs e);
-        public event TestEndedEventHandler TestEnded;
-        protected virtual void OnTestEnded(string result)
+        public delegate void StepFailedEventHandler(object sender, TestEventArgs e);
+        public event StepFailedEventHandler StepFailed;
+        protected virtual void OnStepFailed(string stepName)
         {
-            if (TestEnded != null)
-            {
-                TestEnded(this, new TestEventArgs() {argument = result });
-            }
+                StepFailed(this, new TestEventArgs() { argument = stepName });
+        }
+
+        public delegate void TestEndedEventHandler(object sender, TestResultEventArgs e);
+        public event TestEndedEventHandler TestEnded;
+        protected virtual void OnTestEnded(TestResultEventArgs.ResultType result)
+        {
+                TestEnded(this, new TestResultEventArgs() { resultType = result });
         }
 
         public delegate void DeviceNotConnectedEventHandler(object sender, TestEventArgs e);
         public event DeviceNotConnectedEventHandler DeviceNotConnected;
         protected virtual void OnDeviceNotConnected(string packagename)
         {
-            if (DeviceNotConnected != null)
-            {
                 DeviceNotConnected(this, new TestEventArgs() { argument = packagename });
-            }
         }
 
 
@@ -196,20 +254,15 @@ namespace WindowsFormsApp1
         public event AppLaunchFailedEventHandler AppLaunchFailed;
         protected virtual void OnAppLaunchFailed(string packagename)
         {
-            if (AppLaunchFailed != null)
-            {
                 AppLaunchFailed(this, new TestEventArgs() { argument = packagename });
-            }
         }
+
 
         public delegate void LogReadEventHandler(object sender, TestEventArgs e);
         public event LogReadEventHandler LogRead;
         protected virtual void OnLogRead(string log)
         {
-            if (LogRead != null)
-            {
                 LogRead(this, new TestEventArgs() { argument = log });
-            }
         }
 
         #endregion
