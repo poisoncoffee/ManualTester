@@ -230,11 +230,12 @@ namespace WindowsFormsApp1
             }
             else
             {
-                for(int i = 0; i < choosenSequenceStatusCheckedList.Items.Count - 1; i++)
+                for(int i = 0; i < choosenSequenceStatusCheckedList.Items.Count; i++)
                 {
-                    if (choosenSequenceStatusCheckedList.Items[i].ToString() == e.argument && !choosenSequenceStatusCheckedList.GetItemChecked(i));
+                    if (choosenSequenceStatusCheckedList.Items[i].ToString() == e.argument && !choosenSequenceStatusCheckedList.GetItemChecked(i))
                     {
                         choosenSequenceStatusCheckedList.SetItemChecked(i, true);
+                        break;
                     }
                 }
 

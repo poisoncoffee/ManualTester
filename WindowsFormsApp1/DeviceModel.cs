@@ -277,6 +277,11 @@ namespace WindowsFormsApp1
             cmd.StandardInput.WriteLine(command);
             cmd.Close();
         }
+
+        public static void InputBack()
+        {
+            ExecuteCommand("adb shell input keyevent 4");
+        }
         #endregion
 
         #region LogcatLogic
@@ -312,6 +317,7 @@ namespace WindowsFormsApp1
             return logcat;
         }
 
+        //todo
         public static void EndLogcat (Logcat logcat)
         {
             Process cmdBrief = Process.GetProcessById(logcat.briefLogcatProcessID);

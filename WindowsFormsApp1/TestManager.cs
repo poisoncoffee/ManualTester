@@ -147,7 +147,10 @@ namespace WindowsFormsApp1
             //now execute every step
             foreach(TestStep step in testStepsPlan)
             {
+                ExecuteStep:
                 bool isStepSuccess = false;
+                bool isConditionPresent = false;
+                bool isConfirmationPresent = false;
                 int alreadyWaitedFor = 0;
 
                 //execute tap
@@ -156,68 +159,106 @@ namespace WindowsFormsApp1
                 while (!isStepSuccess)
                 {
                     logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
-
+                    TestStep step2 = step;
                     //read log and check every line
                     while (logcatOffset < logcat.logs.Count)
                     {
                         OnLogRead(logcat.logs[logcatOffset]);
 
-                        foreach (string confirmation in step.confirmationLog)
+
+                        if (!isConditionPresent)
                         {
-                            if (logcat.logs[logcatOffset].Contains(confirmation))
+                            if (step.conditionLog.Count == 0)
                             {
-                                isStepSuccess = true;
-                                logcatOffset++;
-                                goto StepSuccess;
+                                isConditionPresent = true;
                             }
+                            else
+                            {
+                                isConditionPresent = IsLogPresent(logcat.logs[logcatOffset], step.conditionLog);
+                            }
+                        }
+
+                        if (isConditionPresent && !isConfirmationPresent)
+                        {
+                            if (step.confirmationLog.Count == 0)
+                            {
+                                isConfirmationPresent = true;
+                            }
+                            else
+                            {
+                                isConfirmationPresent = IsLogPresent(logcat.logs[logcatOffset], step.confirmationLog);
+                            }
+                        }
+
+                        if (isConditionPresent && isConfirmationPresent)
+                        {
+                            isStepSuccess = true;
+                            break;
                         }
 
                         logcatOffset++;
                     }
 
-                    //If no confirmation log was found, wait 50 ms before updating logcat again
-                    Thread.Sleep(100);
-                    alreadyWaitedFor += 100;
+                    //if isStepFailed is checked later on because there is a possibility to retry
+                    if (isStepSuccess)
+                    {
+                        OnStepSucceeded(step.testStepID);
+                        break;
+                    }
+
+                    //If no confirmation log was found, wait 500 ms before updating logcat again
+                    Thread.Sleep(500);
+                    alreadyWaitedFor += 500;
+
                     if (alreadyWaitedFor > step.terminationTime)     //unless it times out
                     {
-                        goto StepFailed;
+                        break;
                     }
-                }
-
-                StepSuccess:
+                }  
+                if(!isStepSuccess)
                 {
-                    if(isStepSuccess)
+                    switch (step.actionIfFailed)
                     {
-                        ReactToStepSuccess(step);
+                        case TestDatabase.TestAction.Back:
+                            DeviceModel.InputBack();
+                            break;
+                        case TestDatabase.TestAction.BackAndRetry:
+                            DeviceModel.InputBack();
+                            goto ExecuteStep;
+                        case TestDatabase.TestAction.Next:
+                            OnStepFailed(step.testStepID);
+                            break;
+                        case TestDatabase.TestAction.Retry:
+                            goto ExecuteStep;
+                        case TestDatabase.TestAction.Stop:
+                            OnStepFailed(step.testStepID);
+                            OnTestEnded(TestResultEventArgs.ResultType.StepFailed);
+                            break;
+                        default:
+                            goto case TestDatabase.TestAction.Stop;
+                    }
+
+                    //It checks if the device is disconnected to be sure it was not the cause of the failure.
+                    if (!DeviceModel.IsDeviceReady())
+                    {
+                        OnTestEnded(TestResultEventArgs.ResultType.DeviceDisconnected);
                     }
                 }
+            }
+        }
 
-                StepFailed:
+        private bool IsLogPresent(string logcatLog, List<string> targetLogs)
+        {
+            foreach (string targetLog in targetLogs)
+            {
+                if (logcatLog.Contains(targetLog))
                 {
-                    if (!isStepSuccess)
-                    {
-                        ReactToStepFailure(step);
-
-                        //It checks if the device is disconnected to be sure it was not the cause of the failure.
-                        if (!DeviceModel.IsDeviceReady())
-                        {
-                            OnTestEnded(TestResultEventArgs.ResultType.DeviceDisconnected);
-                        }
-                    }
+                    return true;
                 }
-           
-           }
+            }
+            return false;
         }
 
-        private void ReactToStepSuccess (TestStep step)
-        {
-            OnStepSucceeded(step.testStepID);
-        }
-
-        private void ReactToStepFailure (TestStep step)
-        {
-
-        }
 
         #region Events
 
@@ -225,6 +266,7 @@ namespace WindowsFormsApp1
         public event StepSucceededEventHandler StepSucceeded;
         protected virtual void OnStepSucceeded(string stepName)
         {
+            if(StepSucceeded != null)
                 StepSucceeded(this, new TestEventArgs() { argument = stepName });
         }
 
@@ -232,6 +274,7 @@ namespace WindowsFormsApp1
         public event StepFailedEventHandler StepFailed;
         protected virtual void OnStepFailed(string stepName)
         {
+            if(StepFailed != null)
                 StepFailed(this, new TestEventArgs() { argument = stepName });
         }
 
@@ -239,6 +282,7 @@ namespace WindowsFormsApp1
         public event TestEndedEventHandler TestEnded;
         protected virtual void OnTestEnded(TestResultEventArgs.ResultType result)
         {
+            if(TestEnded != null)
                 TestEnded(this, new TestResultEventArgs() { resultType = result });
         }
 
@@ -246,6 +290,7 @@ namespace WindowsFormsApp1
         public event DeviceNotConnectedEventHandler DeviceNotConnected;
         protected virtual void OnDeviceNotConnected(string packagename)
         {
+            if(DeviceNotConnected != null)
                 DeviceNotConnected(this, new TestEventArgs() { argument = packagename });
         }
 
@@ -254,6 +299,7 @@ namespace WindowsFormsApp1
         public event AppLaunchFailedEventHandler AppLaunchFailed;
         protected virtual void OnAppLaunchFailed(string packagename)
         {
+            if(AppLaunchFailed != null)
                 AppLaunchFailed(this, new TestEventArgs() { argument = packagename });
         }
 
@@ -262,6 +308,7 @@ namespace WindowsFormsApp1
         public event LogReadEventHandler LogRead;
         protected virtual void OnLogRead(string log)
         {
+            if (LogRead != null)
                 LogRead(this, new TestEventArgs() { argument = log });
         }
 

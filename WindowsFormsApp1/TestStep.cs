@@ -22,6 +22,7 @@ namespace WindowsFormsApp1
 
         public string testStepID;
         public string argument;                             //For now, useful only for steps of type Command - Provide command here
+        public List<string> conditionLog;
         public List<string> confirmationLog;
 
         //Time in miliseconds. If no confirmation arrived after this time, step is recognized as failed. Test Logic checks every 100+ ms 
