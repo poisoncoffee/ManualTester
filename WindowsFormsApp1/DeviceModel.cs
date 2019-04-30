@@ -290,6 +290,19 @@ namespace WindowsFormsApp1
         //both of them need to be maintained
         public static Logcat BeginLogcat(string processPID, string packagename)
         {
+            //forst, clean up the old files
+            string briefLogcatPath = executedDirectoryPath + "/brieflLogcat.txt";
+            string detailedLogcatPath = executedDirectoryPath + "/detailedlogcat.txt";
+            if(File.Exists(briefLogcatPath))
+            {
+                File.Delete(briefLogcatPath);
+            }
+            if (File.Exists(detailedLogcatPath))
+            {
+                File.Delete(detailedLogcatPath);
+            }
+
+
             Logcat logcat = new Logcat();
             logcat.logs = new List<string>();
 
@@ -336,16 +349,22 @@ namespace WindowsFormsApp1
 
             StreamReader file = new StreamReader(logcat.briefLogcatPath);
             string readLine = "";
-            while (offset > 0)
+            int linesToSkip = offset;
+            while (linesToSkip > 0)
             {
                 file.ReadLine();
-                offset--;
+                linesToSkip--;
             }
 
             while(!file.EndOfStream)
             {
-                readLine = file.ReadLine();
-                logcat.logs.Add(readLine);
+                while(logcat.logs.Count <= offset)
+                {
+                    //if there are less elements than "offset" (which is the index we will be inserting a value at), add an element.
+                    logcat.logs.Add("");
+                }
+                logcat.logs[offset] = file.ReadLine();
+                offset++;
             }
 
             file.Close();

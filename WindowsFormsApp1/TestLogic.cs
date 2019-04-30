@@ -93,18 +93,17 @@ namespace WindowsFormsApp1
                 int alreadyWaitedFor = 0;
 
                 //execute tap
+                TestStep step2 = step;
+                Thread.Sleep(2000);
                 DeviceModel.InputTap(step.posX, step.posY);
 
                 while (!isStepSuccess)
                 {
                     logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
-                    TestStep step2 = step;
+
                     //read log and check every line
                     while (logcatOffset < logcat.logs.Count)
                     {
-                        OnLogRead(logcat.logs[logcatOffset]);
-
-
                         if (!isConditionPresent)
                         {
                             if (step.conditionLog.Count == 0)
@@ -135,7 +134,10 @@ namespace WindowsFormsApp1
                             break;
                         }
 
+                        string log = "[" + logcatOffset + "]" + logcat.logs[logcatOffset];
+                        OnLogRead(log);
                         logcatOffset++;
+
                     }
 
                     //if isStepFailed is checked later on because there is a possibility to retry
@@ -156,6 +158,7 @@ namespace WindowsFormsApp1
                 }  
                 if(!isStepSuccess)
                 {
+                    TestStep step3 = step;
                     switch (step.actionIfFailed)
                     {
                         case TestDatabase.TestAction.Back:
