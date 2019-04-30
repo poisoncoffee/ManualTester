@@ -8,6 +8,7 @@ namespace WindowsFormsApp1
 {
     public class StepDefinitions
     {
+        public string packagename;
         public List<TestStep> TestStepDefinitions;
     }
 }

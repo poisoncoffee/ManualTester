@@ -50,7 +50,7 @@ namespace WindowsFormsApp1
             executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
 
-        public void CreateTest(List<string> choosenSequences)
+        public void CreateTest(List<TestStep> testStepPlan)
         {
 
             if(DeviceModel.IsDeviceReady())
@@ -59,29 +59,8 @@ namespace WindowsFormsApp1
                     if(DeviceModel.LaunchApp(packagename) || forceTest)
                     {
                     processPID = DeviceModel.GetProcessPID(packagename);
-                    TestDatabase testDatabase = TestDatabase.Instance;
 
-                    try
-                    {
-                        //loading tests definitions
-                        testStepDefinitions = testDatabase.LoadTestStepDefinitions(packagename);
-                        testSequenceDefinitions = testDatabase.LoadTestSequenceDefinitions(packagename);
-                    }
-                    catch (Newtonsoft.Json.JsonException)
-                    {
-                        OnTestEnded(TestResultEventArgs.ResultType.LoadingDefinitionsFailed);
-                    }
-                    catch (System.IO.IOException)
-                    {
-                        OnTestEnded(TestResultEventArgs.ResultType.LoadingDefinitionsFailed);
-                    }
-
-                        List<TestStep> testStepPlan = new List<TestStep>();
-                        List<TestSequence> testSequencePlan = new List<TestSequence>();
-                        testSequencePlan = ConvertStringsToSequences(choosenSequences);
-                        testStepPlan = ConvertTestSequencesToTestSteps(testSequencePlan);
-
-                        ExecuteTestSteps(testStepPlan);            
+                    ExecuteTestSteps(testStepPlan);            
                     } 
                     else
                     {
@@ -95,47 +74,7 @@ namespace WindowsFormsApp1
 
         }
 
-        //converting choosenSequences (which are strings) to actual TestSequence objects by name
-        List<TestSequence> ConvertStringsToSequences(List<string> choosenSequences)
-        {
-            List<TestSequence> sequencePlan = new List<TestSequence>();
-            foreach (string sequenceName in choosenSequences)
-            {
-                foreach (TestSequence testSequence in testSequenceDefinitions)
-                {
-                    if (sequenceName == testSequence.testSequenceID)
-                    {
-                        sequencePlan.Add(testSequence);
-                        break;
-                    }
-                }
-            }
 
-            return sequencePlan;
-        }
-
-        List<TestStep> ConvertTestSequencesToTestSteps(List<TestSequence> sequencePlan)
-        {
-            int count = 0;
-            List<TestStep> stepPlan = new List<TestStep>();
-            foreach (TestSequence testSequence in sequencePlan)
-            {
-                foreach (string testStepOnList in testSequence.StepList)
-                {
-                    foreach (TestStep testStepDefinition in testStepDefinitions)
-                    {
-                        if (testStepOnList == testStepDefinition.testStepID)
-                        {
-                            stepPlan.Add(testStepDefinition);
-                            count++;
-                            break;
-                        }
-                    }
-                }
-
-            }
-            return stepPlan;
-        }
 
         void ExecuteTestSteps(List<TestStep> testStepsPlan)
         {

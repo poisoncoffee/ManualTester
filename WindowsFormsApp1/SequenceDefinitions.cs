@@ -8,6 +8,7 @@ namespace WindowsFormsApp1
 {
     public class SequenceDefinitions
     {
+        public string packagename;
         public List<TestSequence> TestSequenceDefinitions;
     }
 }

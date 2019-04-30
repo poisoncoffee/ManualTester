@@ -11,8 +11,9 @@ namespace WindowsFormsApp1
     public partial class TestController : Form
     {
         private List<TestSequence> testSequencesList = new List<TestSequence>();
-        private List<string> choosenSequencesList = new List<string>();
+        private List<TestStep> choosenTestSteps = new List<TestStep>();
         private List<string> consoleOutputBuffer = new List<string>();
+        private string currentProjectsPackagename = "";
         private bool isUpdatingConsoleOutputAllowed = true;
         private Task test;
 
@@ -65,16 +66,25 @@ namespace WindowsFormsApp1
 
         private void loadSequencesButton_Click(object sender, EventArgs e)
         {
-            TestDatabase testDatabase = TestDatabase.Instance;
-            testSequencesList = testDatabase.LoadTestSequenceDefinitions("com.artifexmundi.balefire");
-
-            sequenceDefinitionsList.Items.Clear();
-            if (testSequencesList.Count != 0)
+            if (comboBoxWithAvailableApps.Text != null)
             {
-                foreach (TestSequence tsq in testSequencesList)
-                {
-                    sequenceDefinitionsList.Items.Add(tsq.testSequenceID);
-                }
+                currentProjectsPackagename = comboBoxWithAvailableApps.Text;
+            }
+            else
+            {
+                MessageBox.Show("Please choose the project", "Loading Failed", MessageBoxButtons.OK);
+                return;
+            }
+
+            TestDatabase database = TestDatabase.Instance;
+            //todo: trycatch it
+            database.LoadTestSequenceDefinitions(currentProjectsPackagename);
+            database.LoadTestStepDefinitions(currentProjectsPackagename);
+            List<string> sequenceDefinitionsList = database.GetSequenceDefinitionsAsString();
+            sequenceDefinitionsListBox.Items.Clear();
+            foreach(string tsqname in sequenceDefinitionsList)
+            {
+                sequenceDefinitionsListBox.Items.Add(tsqname);
             }
 
         }
@@ -82,38 +92,38 @@ namespace WindowsFormsApp1
 
         private void addSequence_Click(object sender, EventArgs e)
         {
-            if (sequenceDefinitionsList.SelectedItem != null)
+            if (sequenceDefinitionsListBox.SelectedItem != null)
             {
-                choosenSequenceList.Items.Add(sequenceDefinitionsList.SelectedItem);
+                choosenSequenceListBox.Items.Add(sequenceDefinitionsListBox.SelectedItem);
             }
         }
 
         private void removeSequence_Click(object sender, EventArgs e)
         {
-            if (choosenSequenceList.SelectedItem != null)
+            if (choosenSequenceListBox.SelectedItem != null)
             {
-                choosenSequenceList.Items.Remove(choosenSequenceList.SelectedItem);
+                choosenSequenceListBox.Items.Remove(choosenSequenceListBox.SelectedItem);
             }
 
         }
 
         private void moveSequenceUp_Click(object sender, EventArgs e)
         {
-            if (choosenSequenceList.SelectedItem != null)
+            if (choosenSequenceListBox.SelectedItem != null)
             {
 
-                if (choosenSequenceList.SelectedIndex != 0)
+                if (choosenSequenceListBox.SelectedIndex != 0)
                 {
-                    int i = choosenSequenceList.SelectedIndex;
+                    int i = choosenSequenceListBox.SelectedIndex;
 
                     // 1. copying item to another variable
                     // 2. overwriting it with item on higher position
                     // 3. overwriting item on higher position with variable
-                    var selectedItem = choosenSequenceList.Items[i];
-                    choosenSequenceList.Items[i] = choosenSequenceList.Items[i - 1];
-                    choosenSequenceList.Items[i - 1] = selectedItem;
+                    var selectedItem = choosenSequenceListBox.Items[i];
+                    choosenSequenceListBox.Items[i] = choosenSequenceListBox.Items[i - 1];
+                    choosenSequenceListBox.Items[i - 1] = selectedItem;
 
-                    choosenSequenceList.SetSelected(i - 1, true);
+                    choosenSequenceListBox.SetSelected(i - 1, true);
                 }
 
             }
@@ -122,21 +132,21 @@ namespace WindowsFormsApp1
 
         private void moveSequenceDown_Click(object sender, EventArgs e)
         {
-            if (choosenSequenceList.SelectedItem != null)
+            if (choosenSequenceListBox.SelectedItem != null)
             {
 
-                if (choosenSequenceList.SelectedIndex != choosenSequenceList.Items.Count - 1)
+                if (choosenSequenceListBox.SelectedIndex != choosenSequenceListBox.Items.Count - 1)
                 {
-                    int i = choosenSequenceList.SelectedIndex;
+                    int i = choosenSequenceListBox.SelectedIndex;
 
                     // 1. copying item to another variable
                     // 2. overwriting it with item on lower position
                     // 3. overwriting item on lower position with variable
-                    var selectedItem = choosenSequenceList.Items[i];
-                    choosenSequenceList.Items[i] = choosenSequenceList.Items[i + 1];
-                    choosenSequenceList.Items[i + 1] = selectedItem;
+                    var selectedItem = choosenSequenceListBox.Items[i];
+                    choosenSequenceListBox.Items[i] = choosenSequenceListBox.Items[i + 1];
+                    choosenSequenceListBox.Items[i + 1] = selectedItem;
 
-                    choosenSequenceList.SetSelected(i + 1, true);
+                    choosenSequenceListBox.SetSelected(i + 1, true);
                 }
 
             }
@@ -181,8 +191,16 @@ namespace WindowsFormsApp1
 
         private void StartTest(bool force)
         {
+            TestDatabase database = TestDatabase.Instance;
 
-           // ChangeEnabled(false);
+            if (choosenSequenceListBox.Items.Count != 0)
+            {
+                choosenTestSteps = database.ConvertSequencesAsStringToTestSteps(choosenSequenceListBox.Items.Cast<string>().ToList());
+            }
+            else
+            {
+                MessageBox.Show("Please select at least one step action to execute", "Unable to start test", MessageBoxButtons.OK);
+            }
 
             string packagename = comboBoxWithAvailableApps.Text;
             var testManager = new TestManager(packagename);
@@ -198,17 +216,8 @@ namespace WindowsFormsApp1
             if (force)
                 testManager.forceTest = true;
 
-            choosenSequencesList = choosenSequenceList.Items.Cast<string>().ToList();
-            test = new Task(() => { testManager.CreateTest(choosenSequencesList); } );
-
-            if (choosenSequencesList != null)
-            {
-                test.Start();
-            }
-            else
-            {
-                MessageBox.Show("Please select at least one step action to execute", "Unable to start test", MessageBoxButtons.OK);
-            }
+            test = new Task(() => { testManager.CreateTest(choosenTestSteps); } );
+            test.Start();
 
 
         }
@@ -301,7 +310,7 @@ namespace WindowsFormsApp1
         {
             choosenSequenceStatusCheckedList.Items.Clear();
 
-            foreach (var itm in choosenSequenceList.Items)
+            foreach (var itm in choosenSequenceListBox.Items)
             {
                 choosenSequenceStatusCheckedList.Items.Add(itm);
             }

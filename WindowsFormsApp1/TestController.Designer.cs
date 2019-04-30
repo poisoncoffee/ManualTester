@@ -32,10 +32,10 @@
             this.connectedDeviceIDLabel = new System.Windows.Forms.Label();
             this.connectedDeviceRefreshButton = new System.Windows.Forms.Button();
             this.loadSequencesButton = new System.Windows.Forms.Button();
-            this.choosenSequenceList = new System.Windows.Forms.ListBox();
+            this.choosenSequenceListBox = new System.Windows.Forms.ListBox();
             this.addSequence = new System.Windows.Forms.Button();
             this.removeSequence = new System.Windows.Forms.Button();
-            this.sequenceDefinitionsList = new System.Windows.Forms.ListBox();
+            this.sequenceDefinitionsListBox = new System.Windows.Forms.ListBox();
             this.moveSequenceDown = new System.Windows.Forms.Button();
             this.moveSequenceUp = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -93,13 +93,13 @@
             this.loadSequencesButton.UseVisualStyleBackColor = true;
             this.loadSequencesButton.Click += new System.EventHandler(this.loadSequencesButton_Click);
             // 
-            // choosenSequenceList
+            // choosenSequenceListBox
             // 
-            this.choosenSequenceList.FormattingEnabled = true;
-            this.choosenSequenceList.Location = new System.Drawing.Point(332, 71);
-            this.choosenSequenceList.Name = "choosenSequenceList";
-            this.choosenSequenceList.Size = new System.Drawing.Size(266, 381);
-            this.choosenSequenceList.TabIndex = 13;
+            this.choosenSequenceListBox.FormattingEnabled = true;
+            this.choosenSequenceListBox.Location = new System.Drawing.Point(332, 71);
+            this.choosenSequenceListBox.Name = "choosenSequenceListBox";
+            this.choosenSequenceListBox.Size = new System.Drawing.Size(266, 381);
+            this.choosenSequenceListBox.TabIndex = 13;
             // 
             // addSequence
             // 
@@ -121,13 +121,13 @@
             this.removeSequence.UseVisualStyleBackColor = true;
             this.removeSequence.Click += new System.EventHandler(this.removeSequence_Click);
             // 
-            // sequenceDefinitionsList
+            // sequenceDefinitionsListBox
             // 
-            this.sequenceDefinitionsList.FormattingEnabled = true;
-            this.sequenceDefinitionsList.Location = new System.Drawing.Point(6, 71);
-            this.sequenceDefinitionsList.Name = "sequenceDefinitionsList";
-            this.sequenceDefinitionsList.Size = new System.Drawing.Size(268, 381);
-            this.sequenceDefinitionsList.TabIndex = 22;
+            this.sequenceDefinitionsListBox.FormattingEnabled = true;
+            this.sequenceDefinitionsListBox.Location = new System.Drawing.Point(6, 71);
+            this.sequenceDefinitionsListBox.Name = "sequenceDefinitionsListBox";
+            this.sequenceDefinitionsListBox.Size = new System.Drawing.Size(268, 381);
+            this.sequenceDefinitionsListBox.TabIndex = 22;
             // 
             // moveSequenceDown
             // 
@@ -179,9 +179,9 @@
             this.tabPage1.Controls.Add(this.moveSequenceDown);
             this.tabPage1.Controls.Add(this.loadSequencesButton);
             this.tabPage1.Controls.Add(this.moveSequenceUp);
-            this.tabPage1.Controls.Add(this.sequenceDefinitionsList);
+            this.tabPage1.Controls.Add(this.sequenceDefinitionsListBox);
             this.tabPage1.Controls.Add(this.removeSequence);
-            this.tabPage1.Controls.Add(this.choosenSequenceList);
+            this.tabPage1.Controls.Add(this.choosenSequenceListBox);
             this.tabPage1.Controls.Add(this.addSequence);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
@@ -260,10 +260,10 @@
         private System.Windows.Forms.Label connectedDeviceIDLabel;
         private System.Windows.Forms.Button connectedDeviceRefreshButton;
         private System.Windows.Forms.Button loadSequencesButton;
-        private System.Windows.Forms.ListBox choosenSequenceList;
+        private System.Windows.Forms.ListBox choosenSequenceListBox;
         private System.Windows.Forms.Button addSequence;
         private System.Windows.Forms.Button removeSequence;
-        private System.Windows.Forms.ListBox sequenceDefinitionsList;
+        private System.Windows.Forms.ListBox sequenceDefinitionsListBox;
         private System.Windows.Forms.Button moveSequenceDown;
         private System.Windows.Forms.Button moveSequenceUp;
         private System.Windows.Forms.Button button1;
