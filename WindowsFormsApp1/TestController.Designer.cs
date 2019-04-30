@@ -44,7 +44,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tipLabel = new System.Windows.Forms.Label();
             this.consoleOutput = new System.Windows.Forms.TextBox();
-            this.choosenSequenceStatusCheckedList = new System.Windows.Forms.CheckedListBox();
+            this.choosenStepsStatusCheckedList = new System.Windows.Forms.CheckedListBox();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -171,7 +171,6 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(668, 487);
             this.tabControl.TabIndex = 25;
-            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
             // 
             // tabPage1
             // 
@@ -195,7 +194,7 @@
             // 
             this.tabPage2.Controls.Add(this.tipLabel);
             this.tabPage2.Controls.Add(this.consoleOutput);
-            this.tabPage2.Controls.Add(this.choosenSequenceStatusCheckedList);
+            this.tabPage2.Controls.Add(this.choosenStepsStatusCheckedList);
             this.tabPage2.Controls.Add(this.connectedDeviceRefreshButton);
             this.tabPage2.Controls.Add(this.button1);
             this.tabPage2.Controls.Add(this.connectedDeviceIDLabel);
@@ -228,15 +227,14 @@
             this.consoleOutput.TabIndex = 12;
             this.consoleOutput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.consoleOutput_KeyPress);
             // 
-            // choosenSequenceStatusCheckedList
+            // choosenStepsStatusCheckedList
             // 
-            this.choosenSequenceStatusCheckedList.Enabled = false;
-            this.choosenSequenceStatusCheckedList.FormattingEnabled = true;
-            this.choosenSequenceStatusCheckedList.Location = new System.Drawing.Point(6, 72);
-            this.choosenSequenceStatusCheckedList.Name = "choosenSequenceStatusCheckedList";
-            this.choosenSequenceStatusCheckedList.Size = new System.Drawing.Size(212, 349);
-            this.choosenSequenceStatusCheckedList.TabIndex = 11;
-            this.choosenSequenceStatusCheckedList.Click += new System.EventHandler(this.tabControl_SelectedIndexChanged);
+            this.choosenStepsStatusCheckedList.Enabled = false;
+            this.choosenStepsStatusCheckedList.FormattingEnabled = true;
+            this.choosenStepsStatusCheckedList.Location = new System.Drawing.Point(6, 72);
+            this.choosenStepsStatusCheckedList.Name = "choosenStepsStatusCheckedList";
+            this.choosenStepsStatusCheckedList.Size = new System.Drawing.Size(212, 349);
+            this.choosenStepsStatusCheckedList.TabIndex = 11;
             // 
             // TestController
             // 
@@ -271,7 +269,7 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox consoleOutput;
-        private System.Windows.Forms.CheckedListBox choosenSequenceStatusCheckedList;
+        private System.Windows.Forms.CheckedListBox choosenStepsStatusCheckedList;
         private System.Windows.Forms.Label tipLabel;
     }
 }

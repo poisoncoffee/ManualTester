@@ -191,7 +191,9 @@ namespace WindowsFormsApp1
 
         private void StartTest(bool force)
         {
+            string packagename = comboBoxWithAvailableApps.Text;
             TestDatabase database = TestDatabase.Instance;
+            TestLogic testManager = new TestLogic(packagename);
 
             if (choosenSequenceListBox.Items.Count != 0)
             {
@@ -200,10 +202,10 @@ namespace WindowsFormsApp1
             else
             {
                 MessageBox.Show("Please select at least one step action to execute", "Unable to start test", MessageBoxButtons.OK);
+                return;
             }
 
-            string packagename = comboBoxWithAvailableApps.Text;
-            var testManager = new TestManager(packagename);
+            FillChoosenStepStatusCheckedList(choosenTestSteps);
 
             //subscribe to all events
             testManager.TestEnded += OnTestEnded;
@@ -218,7 +220,16 @@ namespace WindowsFormsApp1
 
             test = new Task(() => { testManager.CreateTest(choosenTestSteps); } );
             test.Start();
+        }
 
+        private void FillChoosenStepStatusCheckedList(List<TestStep> testStepList)
+        {
+            choosenStepsStatusCheckedList.Items.Clear();
+
+            foreach (var ts in testStepList)
+            {
+                choosenStepsStatusCheckedList.Items.Add(ts.testStepID);
+            }
 
         }
 
@@ -232,18 +243,18 @@ namespace WindowsFormsApp1
 
         public void OnStepSucceeded(object sender, TestEventArgs e)
         {
-            if(choosenSequenceStatusCheckedList.InvokeRequired)
+            if(choosenStepsStatusCheckedList.InvokeRequired)
             {
                 TestEventArgs arg = new TestEventArgs() { argument = e.argument };
-                choosenSequenceStatusCheckedList.Invoke(new TestManager.StepSucceededEventHandler(OnStepSucceeded), sender, e);
+                choosenStepsStatusCheckedList.Invoke(new TestLogic.StepSucceededEventHandler(OnStepSucceeded), sender, e);
             }
             else
             {
-                for(int i = 0; i < choosenSequenceStatusCheckedList.Items.Count; i++)
+                for(int i = 0; i < choosenStepsStatusCheckedList.Items.Count; i++)
                 {
-                    if (choosenSequenceStatusCheckedList.Items[i].ToString() == e.argument && !choosenSequenceStatusCheckedList.GetItemChecked(i))
+                    if (choosenStepsStatusCheckedList.Items[i].ToString() == e.argument && !choosenStepsStatusCheckedList.GetItemChecked(i))
                     {
-                        choosenSequenceStatusCheckedList.SetItemChecked(i, true);
+                        choosenStepsStatusCheckedList.SetItemChecked(i, true);
                         break;
                     }
                 }
@@ -289,7 +300,7 @@ namespace WindowsFormsApp1
             if (consoleOutput.InvokeRequired)
             {
                 TestEventArgs arg = new TestEventArgs() { argument = e.argument };
-                consoleOutput.Invoke(new TestManager.LogReadEventHandler(OnLogRead), sender, e);
+                consoleOutput.Invoke(new TestLogic.LogReadEventHandler(OnLogRead), sender, e);
             }
             else
             {
@@ -305,16 +316,6 @@ namespace WindowsFormsApp1
         }
 
         #endregion
-
-        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            choosenSequenceStatusCheckedList.Items.Clear();
-
-            foreach (var itm in choosenSequenceListBox.Items)
-            {
-                choosenSequenceStatusCheckedList.Items.Add(itm);
-            }
-        }
 
         private void consoleOutput_KeyPress(object sender, KeyPressEventArgs e)
         {

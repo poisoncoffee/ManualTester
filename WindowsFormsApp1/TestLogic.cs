@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         public int numFailed { get; set; }
     }
 
-    public class TestManager
+    public class TestLogic
     {
         public bool testsCancelled = false;
         public bool forceTest = false;          // if set to true, launches test despite the fact DeviceModel failed to launch app. Used with assumption that end user launched the app manually.
@@ -44,7 +44,7 @@ namespace WindowsFormsApp1
 
         private DeviceModel.Logcat logcat = new DeviceModel.Logcat();
 
-        public TestManager(string givenPackagename)
+        public TestLogic(string givenPackagename)
         {
             packagename = givenPackagename;
             executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
