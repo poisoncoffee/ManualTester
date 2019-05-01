@@ -55,7 +55,6 @@ namespace WindowsFormsApp1
 
             if(DeviceModel.IsDeviceReady())
             {
-
                     if(DeviceModel.LaunchApp(packagename) || forceTest)
                     {
                     processPID = DeviceModel.GetProcessPID(packagename);
@@ -158,7 +157,6 @@ namespace WindowsFormsApp1
                 }  
                 if(!isStepSuccess)
                 {
-                    TestStep step3 = step;
                     switch (step.actionIfFailed)
                     {
                         case TestDatabase.TestAction.Back:

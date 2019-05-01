@@ -120,6 +120,73 @@ namespace WindowsFormsApp1
             return output;
         }
 
+        // This method returns .bat output as string
+        // There is a .bat requirement: .bat file, needs to redirect input to .txt file named exactly the same as the bat
+        // Please provide batName without file extension.
+        // High concept of this ugly logic is:
+        // 1. Check if file exists - if yes, delete it (it may be the result of the previous run)
+        // 2. Run .bat
+        // 3. Wait for .bat output to start existing, which does not happen immediately (wait until pseudoTimer runs out). If timer runs out (approx. 10 seconds), throw an exception (assuming that the file won't be created)
+        // 4. When file begins existing try to open it (and retry if the operation failed - the file may still be "in progress of creation" and copying it will fail). That happens until pseudoTimer2 runs out. If timer runs out (approx. 10 seconds), throw an exception (assuming that the file couldn't be open)
+        private static string ExecuteBatToFile(string batName, string arguments)
+        {            
+            string outputFilePath = executedDirectoryPath + "/" + batName + ".txt";
+            if (File.Exists(outputFilePath))
+            {
+                File.Delete(outputFilePath);
+            }
+
+            Process cmdDetailed = new Process();
+            cmdDetailed.StartInfo.UseShellExecute = true;
+            cmdDetailed.StartInfo.FileName = batName + ".bat";
+            if (arguments.Length > 0)
+                cmdDetailed.StartInfo.Arguments = arguments;
+            cmdDetailed.Start();
+
+            int pseudoTimer = 20;
+            while(pseudoTimer > 0 && !File.Exists(outputFilePath))
+            {
+                // do nothing - wait for file to start existing (which will not happen immediately)
+                Thread.Sleep(100);
+                pseudoTimer--;
+            }
+
+            // now, the timer ran out or the file started existing, so...
+            if(!File.Exists(outputFilePath))
+            {
+                throw new InvalidOperationException("File containig output: " + outputFilePath + " that should be created by bat file: " + batName + ".bat does not exist");
+            } 
+            else
+            {
+                string outputCopyPath = outputFilePath + ".copy.txt";
+                int pseudoTimer2 = 20;
+
+            TryToCopy:
+                if (pseudoTimer2 > 0)
+                {
+                    try
+                    {
+                        File.Copy(outputFilePath, outputCopyPath, true);
+                    }
+                    catch (IOException ex)
+                    {
+                        //often it tries to copy file while it's still used by the .bat file (.bat is still creating this file).
+                        Thread.Sleep(500);
+                        pseudoTimer2--;
+                        goto TryToCopy;
+                    }
+                }
+                else
+                {
+                    throw new IOException("Unable to open file: " + outputFilePath + " that should be created by bat file: " + batName);
+                }
+
+                StreamReader streamOutput = new StreamReader(outputCopyPath);
+                string output = streamOutput.ReadToEnd();
+                return output;
+            }
+        }
+
         //if device has correct status and is ready for testing
         public static bool IsDeviceReady()
         { 
@@ -235,30 +302,22 @@ namespace WindowsFormsApp1
             return false;
         }
 
-        //gets this Android process's ID
         public static string GetProcessPID(string packagename)
         {
             string processID = "";
-            int pseudoTimer = 30;
+            //launching the process may take time so if no pid was found it sleeps for 500 ms (ant then retries - total of 20 times) which gives 10 seconds for an app to launch. After that time an exception will be thrown.
 
-            while (pseudoTimer > 0)
+            processID = ExecuteBatToFile("getPID", packagename);
+
+            if (processID != "")
             {
-                string command = "adb shell pidof -s " + packagename;
-                processID = ExecuteCommandToFile(command, "GetProcessPID");
-
-                if (processID != "")
-                    {
-                    processID = RemoveNonNumericFromString(processID);
-                    return processID;
-                    }
-
-                //launching the process may take time so if no pid was found it retries 20 times and sleeps for 500 ms which gives 10 seconds for an app to launch.
-                Thread.Sleep(500);
-                pseudoTimer--;
+                processID = RemoveNonNumericFromString(processID);
+                return processID;
             }
-
-            throw new ArgumentException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
-
+            else
+            {
+                throw new ArgumentException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
+            }
         }
 
         //inputs tap on the screen at the given coordinates
