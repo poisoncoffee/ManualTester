@@ -169,7 +169,7 @@ namespace WindowsFormsApp1
                     {
                         output = File.ReadAllText(outputFilePath);
                     }
-                    catch (IOException ex)
+                    catch (IOException)
                     {
                         //often it tries to copy file while it's still used by the .bat file (.bat is still creating this file).
                         Thread.Sleep(1000);
@@ -409,7 +409,6 @@ namespace WindowsFormsApp1
             File.Copy(detailedLogcatSourcePath, logcat.detailedLogcatPath, true);
 
             StreamReader file = new StreamReader(logcat.briefLogcatPath);
-            string readLine = "";
             int linesToSkip = offset;
             while (linesToSkip > 0)
             {

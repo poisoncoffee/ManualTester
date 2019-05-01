@@ -92,8 +92,7 @@ namespace WindowsFormsApp1
                 int alreadyWaitedFor = 0;
 
                 //execute tap
-                TestStep step2 = step;
-                Thread.Sleep(2000);
+                Thread.Sleep(1500);
                 DeviceModel.InputTap(step.posX, step.posY);
 
                 while (!isStepSuccess)
@@ -111,7 +110,7 @@ namespace WindowsFormsApp1
                             }
                             else
                             {
-                                isConditionPresent = IsLogPresent(logcat.logs[logcatOffset], step.conditionLog);
+                                isConditionPresent = IsTargetPresent(logcat.logs[logcatOffset], step.conditionLog);
                             }
                         }
 
@@ -123,7 +122,7 @@ namespace WindowsFormsApp1
                             }
                             else
                             {
-                                isConfirmationPresent = IsLogPresent(logcat.logs[logcatOffset], step.confirmationLog);
+                                isConfirmationPresent = IsTargetPresent(logcat.logs[logcatOffset], step.confirmationLog);
                             }
                         }
 
@@ -187,7 +186,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        private bool IsLogPresent(string logcatLog, List<string> targetLogs)
+        private bool IsTargetPresent(string logcatLog, List<string> targetLogs)
         {
             foreach (string targetLog in targetLogs)
             {
