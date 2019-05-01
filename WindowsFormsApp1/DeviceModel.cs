@@ -19,8 +19,8 @@ namespace WindowsFormsApp1
         static DeviceModel()
         {
             executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            briefLogcatSourcePath = executedDirectoryPath + "/briefLogcat.txt";         //is hardcoded in startBriefLogcat.bat file too
-            detailedLogcatSourcePath = executedDirectoryPath + "/detailedLogcat.txt";   //is hardcoded in startDetailedLogcat.bat file too
+            briefLogcatSourcePath = executedDirectoryPath + "/logcat/briefLogcat.txt";         //is hardcoded in startBriefLogcat.bat file too
+            detailedLogcatSourcePath = executedDirectoryPath + "/logcat/detailedLogcat.txt";   //is hardcoded in startDetailedLogcat.bat file too
         }
 
         public struct Logcat
@@ -131,6 +131,7 @@ namespace WindowsFormsApp1
         private static string ExecuteBatToFile(string batName, string arguments)
         {            
             string outputFilePath = executedDirectoryPath + "/" + batName + ".txt";
+            string output = "";
             if (File.Exists(outputFilePath))
             {
                 File.Delete(outputFilePath);
@@ -161,19 +162,19 @@ namespace WindowsFormsApp1
                 string outputCopyPath = outputFilePath + ".copy.txt";
                 int pseudoTimer2 = 20;
 
-            TryToCopy:
+            TryToRead:
                 if (pseudoTimer2 > 0)
                 {
                     try
                     {
-                        File.Copy(outputFilePath, outputCopyPath, true);
+                        output = File.ReadAllText(outputFilePath);
                     }
                     catch (IOException ex)
                     {
                         //often it tries to copy file while it's still used by the .bat file (.bat is still creating this file).
-                        Thread.Sleep(500);
+                        Thread.Sleep(1000);
                         pseudoTimer2--;
-                        goto TryToCopy;
+                        goto TryToRead;
                     }
                 }
                 else
@@ -181,8 +182,6 @@ namespace WindowsFormsApp1
                     throw new IOException("Unable to open file: " + outputFilePath + " that should be created by bat file: " + batName);
                 }
 
-                StreamReader streamOutput = new StreamReader(outputCopyPath);
-                string output = streamOutput.ReadToEnd();
                 return output;
             }
         }
@@ -306,18 +305,21 @@ namespace WindowsFormsApp1
         {
             string processID = "";
             //launching the process may take time so if no pid was found it sleeps for 500 ms (ant then retries - total of 20 times) which gives 10 seconds for an app to launch. After that time an exception will be thrown.
+            int pseudoTimer = 20;
 
-            processID = ExecuteBatToFile("getPID", packagename);
+            while (pseudoTimer > 0)
+            {
+                processID = ExecuteBatToFile("getPID", packagename);
+                if (processID != "")
+                {
+                    processID = RemoveNonNumericFromString(processID);
+                    return processID;
+                }
+                Thread.Sleep(500);
+                pseudoTimer--;
+            }
 
-            if (processID != "")
-            {
-                processID = RemoveNonNumericFromString(processID);
-                return processID;
-            }
-            else
-            {
-                throw new ArgumentException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
-            }
+            throw new ArgumentException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
         }
 
         //inputs tap on the screen at the given coordinates
@@ -349,9 +351,9 @@ namespace WindowsFormsApp1
         //both of them need to be maintained
         public static Logcat BeginLogcat(string processPID, string packagename)
         {
-            //forst, clean up the old files
-            string briefLogcatPath = executedDirectoryPath + "/brieflLogcat.txt";
-            string detailedLogcatPath = executedDirectoryPath + "/detailedlogcat.txt";
+            //first, clean up the old files
+            string briefLogcatPath = executedDirectoryPath + "/logcat/brieflLogcat.txt";
+            string detailedLogcatPath = executedDirectoryPath + "/logcat/detailedlogcat.txt";
             if(File.Exists(briefLogcatPath))
             {
                 File.Delete(briefLogcatPath);
@@ -376,7 +378,7 @@ namespace WindowsFormsApp1
             cmdDetailed.StartInfo.Arguments = processPID;
             cmdDetailed.Start();
             logcat.detailedLogcatProcessID = cmdDetailed.Id;
-            logcat.detailedLogcatPath = executedDirectoryPath + "/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            logcat.detailedLogcatPath = executedDirectoryPath + "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
 
             //runs new process for brief logcat
             Process cmdBrief = new Process();
@@ -384,7 +386,7 @@ namespace WindowsFormsApp1
             cmdBrief.StartInfo.FileName = "startBriefLogcat.bat";            
             cmdBrief.Start();
             logcat.briefLogcatProcessID = cmdBrief.Id;
-            logcat.briefLogcatPath = executedDirectoryPath + "/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            logcat.briefLogcatPath = executedDirectoryPath + "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
 
             return logcat;
         }
