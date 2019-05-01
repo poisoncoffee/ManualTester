@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.539
+VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManualTester", "WindowsFormsApp1\ManualTester.csproj", "{B857D215-9035-40AC-ABAA-257C85AB1E0D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManualTester", "ManualTester\ManualTester.csproj", "{B857D215-9035-40AC-ABAA-257C85AB1E0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {05F0B993-A865-4FC5-9AB9-E9BB0B70E560}
+		SolutionGuid = {E0CAD0F6-5591-46CA-8D79-06981773D192}
 	EndGlobalSection
 EndGlobal

@@ -43,9 +43,10 @@ namespace WindowsFormsApp1
             Retry
         }
 
+
+        //TODO. Should be reading this from some kind of configuration file.
         public string GetMainActivityName(string packagename)
         {
-            //not implemented yet
             return "com.prime31.UnityPlayerNativeActivity";
         }
 
@@ -55,27 +56,21 @@ namespace WindowsFormsApp1
                 stepDefinitions.TestStepDefinitions.Clear();
             stepDefinitions.packagename = packagename;
 
-            //try opening the file
             string testStepDefinitionsFilePath = packagename + "/Definitions/TestStepDefinitions.json";
             string rawJson = "";
             rawJson = System.IO.File.ReadAllText(testStepDefinitionsFilePath);
-
             stepDefinitions = JsonConvert.DeserializeObject<StepDefinitions>(rawJson);
-
         }
 
         public void LoadTestSequenceDefinitions(string packagename)
         {
             if(sequenceDefinitions.TestSequenceDefinitions != null)
                 sequenceDefinitions.TestSequenceDefinitions.Clear();
-
             sequenceDefinitions.packagename = packagename;
 
-            //try opening the file
             string testStepDefinitionsFilePath = packagename + "/Definitions/TestSequenceDefinitions.json";
             string rawJson = "";
             rawJson = System.IO.File.ReadAllText(testStepDefinitionsFilePath);
-
             sequenceDefinitions = JsonConvert.DeserializeObject<SequenceDefinitions>(rawJson);
         }
 
@@ -91,8 +86,8 @@ namespace WindowsFormsApp1
             return sequencesList;
         }
 
-        //converting choosenSequences (which are strings) to actual TestSequence objects by name
-        private List<TestSequence> ConvertStringsToSequences(List<string> choosenSequences)
+        //Converting choosenSequences (which are strings) to actual TestSequence objects by name
+        private List<TestSequence> ConvertSequencesAsStringToSequences(List<string> choosenSequences)
         {
             List<TestSequence> sequencePlan = new List<TestSequence>();
 
@@ -111,7 +106,7 @@ namespace WindowsFormsApp1
             return sequencePlan;
         }
 
-        private List<TestStep> ConvertTestSequencesToTestSteps(List<TestSequence> sequencePlan)
+        private List<TestStep> ConvertSequencesToSteps(List<TestSequence> sequencePlan)
         {
             List<TestStep> stepPlan = new List<TestStep>();
             foreach (TestSequence testSequence in sequencePlan)
@@ -132,17 +127,17 @@ namespace WindowsFormsApp1
             return stepPlan;
         }
 
-        public List<TestStep> ConvertSequencesAsStringToTestSteps(List<string> choosenSequences)
+        public List<TestStep> ConvertSequencesAsStringToSteps(List<string> choosenSequences)
         {
-            List<TestSequence> testSequences = ConvertStringsToSequences(choosenSequences);
-            List<TestStep> testPlan = ConvertTestSequencesToTestSteps(testSequences);
+            List<TestSequence> testSequences = ConvertSequencesAsStringToSequences(choosenSequences);
+            List<TestStep> testPlan = ConvertSequencesToSteps(testSequences);
             return testPlan;
         }
 
         public List<string> ConvertSequencesAsStringToTestStepsAsString(List<string> choosenSequences)
         {
             List<string> testPlanAsString = new List<string>();
-            List<TestStep> testPlan = ConvertSequencesAsStringToTestSteps(choosenSequences);
+            List<TestStep> testPlan = ConvertSequencesAsStringToSteps(choosenSequences);
 
             foreach(TestStep ts in testPlan)
             {

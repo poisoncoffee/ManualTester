@@ -25,54 +25,41 @@ namespace WindowsFormsApp1
         }
 
         public ResultType resultType { get; set; }
-        public int numSucceeded { get; set; }
-        public int numFailed { get; set; }
+
     }
 
     public class TestLogic
     {
-        public bool testsCancelled = false;
-        public bool forceTest = false;          // if set to true, launches test despite the fact DeviceModel failed to launch app. Used with assumption that end user launched the app manually.
-
+        public bool forceTest = false;          // If set to true, launch test despite the fact DeviceModel "failed to launch app". Used with assumption that end user launched the app manually.
 
         private string packagename;
         private string processPID;
-        private string executedDirectoryPath; 
-
-        private List<TestStep> testStepDefinitions = new List<TestStep>();
-        private List<TestSequence> testSequenceDefinitions = new List<TestSequence>();
-
         private DeviceModel.Logcat logcat = new DeviceModel.Logcat();
 
         public TestLogic(string givenPackagename)
         {
             packagename = givenPackagename;
-            executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
 
         public void CreateTest(List<TestStep> testStepPlan)
         {
-
             if(DeviceModel.IsDeviceReady())
             {
-                    if(DeviceModel.LaunchApp(packagename) || forceTest)
-                    {
+                if (DeviceModel.LaunchApp(packagename) || forceTest)
+                {
                     processPID = DeviceModel.GetProcessPID(packagename);
-
-                    ExecuteTestSteps(testStepPlan);            
-                    } 
-                    else
-                    {
-                        OnAppLaunchFailed(packagename);
-                    }
+                    ExecuteTestSteps(testStepPlan);
+                }
+                else
+                {
+                    OnAppLaunchFailed(packagename);
+                }
             }
             else
             {
                 OnDeviceNotConnected(packagename);
             }
-
         }
-
 
 
         void ExecuteTestSteps(List<TestStep> testStepsPlan)
@@ -91,15 +78,16 @@ namespace WindowsFormsApp1
                 bool isConfirmationPresent = false;
                 int alreadyWaitedFor = 0;
 
-                //execute tap
-                Thread.Sleep(1500);
-                DeviceModel.InputTap(step.posX, step.posY);
+                //execute action. 
+                Thread.Sleep(1500);                         //TODO: Individual delay for each step
+                DeviceModel.InputTap(step.posX, step.posY); //TODO: TODO: Differend kinds of actions
 
                 while (!isStepSuccess)
                 {
                     logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
 
-                    //read log and check every line
+                    //Read new logs and check every line
+                    //TODO: Blacklist. Check every line for error or exception
                     while (logcatOffset < logcat.logs.Count)
                     {
                         if (!isConditionPresent)
@@ -132,13 +120,11 @@ namespace WindowsFormsApp1
                             break;
                         }
 
-                        string log = "[" + logcatOffset + "]" + logcat.logs[logcatOffset];
-                        OnLogRead(log);
+                        OnLogRead(logcat.logs[logcatOffset]);
                         logcatOffset++;
-
                     }
 
-                    //if isStepFailed is checked later on because there is a possibility to retry
+                    //If !isStepSuccess is checked later on because there is a possibility to retry
                     if (isStepSuccess)
                     {
                         OnStepSucceeded(step.testStepID);
@@ -233,7 +219,6 @@ namespace WindowsFormsApp1
                 DeviceNotConnected(this, new TestEventArgs() { argument = packagename });
         }
 
-
         public delegate void AppLaunchFailedEventHandler(object sender, TestEventArgs e);
         public event AppLaunchFailedEventHandler AppLaunchFailed;
         protected virtual void OnAppLaunchFailed(string packagename)
@@ -241,7 +226,6 @@ namespace WindowsFormsApp1
             if(AppLaunchFailed != null)
                 AppLaunchFailed(this, new TestEventArgs() { argument = packagename });
         }
-
 
         public delegate void LogReadEventHandler(object sender, TestEventArgs e);
         public event LogReadEventHandler LogRead;

@@ -25,41 +25,16 @@ namespace WindowsFormsApp1
             comboBoxWithAvailableApps.DataSource = GetAvailableAppsList();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
         #region ButtonsActions
 
 
         //"RUN TEST" button. Starts test without force (force set to false)
-        private void button1_Click(object sender, EventArgs e)
+        private void runTestButton_Click(object sender, EventArgs e)
         {
             StartTest(false); 
         }
 
-        private void comboBoxWithAvailableApps_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
+        private void connectedDeviceRefreshButton_Click(object sender, EventArgs e)
         {
             RefreshDevices();
         }
@@ -76,19 +51,19 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            //TODO: Do this in separate Initializer class
             TestDatabase database = TestDatabase.Instance;
-            //todo: trycatch it
             database.LoadTestSequenceDefinitions(currentProjectsPackagename);
             database.LoadTestStepDefinitions(currentProjectsPackagename);
             List<string> sequenceDefinitionsList = database.GetSequenceDefinitionsAsString();
             sequenceDefinitionsListBox.Items.Clear();
+
             foreach(string tsqname in sequenceDefinitionsList)
             {
                 sequenceDefinitionsListBox.Items.Add(tsqname);
             }
 
         }
-
 
         private void addSequence_Click(object sender, EventArgs e)
         {
@@ -151,17 +126,38 @@ namespace WindowsFormsApp1
 
             }
         }
+
+
+        //Pauses updating the consoleOutput window, allowing user to read logs in peace.
+        //Meanwhile, the logs will be stored in consoleOutputBuffer and added to consoleOutput window after resume.
+        private void consoleOutput_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (isUpdatingConsoleOutputAllowed)
+            {
+                isUpdatingConsoleOutputAllowed = false;
+            }
+            else if (!isUpdatingConsoleOutputAllowed)
+            {
+                isUpdatingConsoleOutputAllowed = true;
+
+                foreach (string log in consoleOutputBuffer)
+                {
+                    UpdateConsoleOutput(log);
+                }
+
+                consoleOutputBuffer.Clear();
+            }
+        }
         #endregion
 
-
         #region ActionsDefinitions
+
+        //Placeholder, TODO. Currently returns "com.artifexmundi.balefire" as this is the app I test. In the future will search for available apps in some config file.
         private List<string> GetAvailableAppsList()
         {
-            //not implemented
             List<string> AppList = new List<string>();
             AppList.Add("com.artifexmundi.balefire");
-            return AppList;
-            
+            return AppList;            
         }
 
         private void RefreshDevices()
@@ -169,6 +165,7 @@ namespace WindowsFormsApp1
             connectedDeviceIDLabel.Text = DeviceModel.GetDeviceStatus();
         }
 
+        //Changes all controls in the window to enabled or disabled
         private void ChangeEnabled(bool enabled)
         {
             foreach (Control c in this.Controls)
@@ -180,7 +177,6 @@ namespace WindowsFormsApp1
             }
         }
 
-
         private void UpdateConsoleOutput(string log)
         {
             consoleOutput.AppendText(log);
@@ -189,6 +185,10 @@ namespace WindowsFormsApp1
             consoleOutput.ScrollToCaret();
         }
 
+        //The logic is:
+        // 1. Check if any sequence has been choosen - if yes, convert them to TestSteps and fill the checked list with them
+        // 2. Subscribe to all events
+        // 3. Start new Task
         private void StartTest(bool force)
         {
             string packagename = comboBoxWithAvailableApps.Text;
@@ -197,7 +197,7 @@ namespace WindowsFormsApp1
 
             if (choosenSequenceListBox.Items.Count != 0)
             {
-                choosenTestSteps = database.ConvertSequencesAsStringToTestSteps(choosenSequenceListBox.Items.Cast<string>().ToList());
+                choosenTestSteps = database.ConvertSequencesAsStringToSteps(choosenSequenceListBox.Items.Cast<string>().ToList());
             }
             else
             {
@@ -233,13 +233,14 @@ namespace WindowsFormsApp1
 
         }
 
+        // TODO
         public void EndTest()
         {
             ChangeEnabled(true);
         }
         #endregion
 
-        #region TestRelatedEventActions
+        #region TestRelatedEvents
 
         public void OnStepSucceeded(object sender, TestEventArgs e)
         {
@@ -272,12 +273,6 @@ namespace WindowsFormsApp1
         public void OnDeviceNotConnected(object sender, TestEventArgs e)
         {
             MessageBox.Show("Device is not connected or unauthenticated.\nEnsure USB debugging is enabled", "Test Ended", MessageBoxButtons.OK);
-            EndTest();
-        }
-
-        public void OnAppNotInstalled(object sender, TestEventArgs e)
-        {
-            MessageBox.Show("Selected application :\"" + e.argument + "\" is not installed on this device", "Test Ended", MessageBoxButtons.OK);
             EndTest();
         }
 
@@ -316,25 +311,6 @@ namespace WindowsFormsApp1
         }
 
         #endregion
-
-        private void consoleOutput_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (isUpdatingConsoleOutputAllowed)
-            {
-                isUpdatingConsoleOutputAllowed = false;
-            }
-            else if(!isUpdatingConsoleOutputAllowed)
-            {
-                isUpdatingConsoleOutputAllowed = true;
-
-                foreach(string log in consoleOutputBuffer)
-                {
-                    UpdateConsoleOutput(log);
-                }
-
-                consoleOutputBuffer.Clear();                
-            }
-        }
 
     }
 }

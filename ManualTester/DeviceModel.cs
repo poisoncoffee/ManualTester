@@ -19,23 +19,25 @@ namespace WindowsFormsApp1
         static DeviceModel()
         {
             executedDirectoryPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            briefLogcatSourcePath = executedDirectoryPath + "/logcat/briefLogcat.txt";         //is hardcoded in startBriefLogcat.bat file too
-            detailedLogcatSourcePath = executedDirectoryPath + "/logcat/detailedLogcat.txt";   //is hardcoded in startDetailedLogcat.bat file too
+            briefLogcatSourcePath = executedDirectoryPath + "/logcat/briefLogcat.txt";         //needs to be defined in startBriefLogcat.bat file too
+            detailedLogcatSourcePath = executedDirectoryPath + "/logcat/detailedLogcat.txt";   //needs to be defined in startDetailedLogcat.bat file too
         }
 
-        public struct Logcat
+        #region ExecutingCommands
+
+        public static void ExecuteCommand(string command)
         {
-            public int briefLogcatProcessID { get; set; }
-            public int detailedLogcatProcessID { get; set; }
-            public string briefLogcatPath { get; set; }
-            public string detailedLogcatPath { get; set; }
-            public List<string> logs { get; set; }
+            Process cmd = new Process();
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.Start();
+            cmd.StandardInput.WriteLine(command);
+            cmd.Close();
         }
 
-        #region adbMethods
-        //runs cmd executing provided command and returns cmd output
-        //not working well
-        private static StreamReader ExecuteCommandGetOutput(string command)
+        private static StreamReader GetExecutedCommandOutput(string command)
         {
             //starting cmd process
             Process cmd = new Process();
@@ -54,25 +56,16 @@ namespace WindowsFormsApp1
             return output;
         }
 
-        public static void ExecuteCommand(string command)
-        {
-            Process cmd = new Process();
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.CreateNoWindow = true;
-            cmd.Start();
-            cmd.StandardInput.WriteLine(command);
-            cmd.Close();
-        }
-
+        //High concept of this logic is:
+        //1. Delete old files (probably from the previous run) if they exist
+        //2. Start cmd process
+        //3. Do empty loops until the file starts existing which does not happen immediately and there is no control of it
+        //4. If the file exist
         private static string ExecuteCommandToFile(string command, string fileName)
         {
-
             string filePath = executedDirectoryPath + "/" + fileName + ".txt";
             string filePathCopy = filePath + ".copy.txt";
 
-            //deletes old files if they exist
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
@@ -83,8 +76,6 @@ namespace WindowsFormsApp1
                 File.Delete(filePathCopy);
             }
 
-
-            //starting cmd process
             Process cmd = new Process();
             cmd.StartInfo.UseShellExecute = false;
             cmd.StartInfo.FileName = "cmd.exe";
@@ -92,32 +83,32 @@ namespace WindowsFormsApp1
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.CreateNoWindow = true;
             cmd.Start();
-
-            //generating adb devices output file
             command += " > " + filePath;
             cmd.StandardInput.WriteLine(command);
             cmd.Close();
 
-
-            while(!File.Exists(filePath))
+            int pseudoTimer = 20;
+            while(pseudoTimer > 0 && !File.Exists(filePath))
             {
                 // Does nothing. This loop waits for the file to start existing which does not happen immediately.
-                Thread.Sleep(100);
+                Thread.Sleep(500);
+                pseudoTimer--;
             }
 
-            File.Copy(filePath, filePathCopy, true);
-
-            while (!File.Exists(filePathCopy))
+            if(!File.Exists(filePath))
             {
-                // Does nothing. This loop waits for the file to start existing which does not happen immediately.
-                Thread.Sleep(100);
+                throw new IOException("File: " + filePath + " that should be created by command " + command + "does not exist");
             }
 
-            //FileStream file = new FileStream(filePathCopy, FileMode.Open, FileAccess.ReadWrite);
-            StreamReader file = new StreamReader(filePathCopy);
-            string output = file.ReadToEnd();
-            file.Close();        
-            return output;
+            else
+            {
+                File.Copy(filePath, filePathCopy, true);
+
+                StreamReader file = new StreamReader(filePathCopy);
+                string output = file.ReadToEnd();
+                file.Close();
+                return output;
+            }
         }
 
         // This method returns .bat output as string
@@ -155,7 +146,7 @@ namespace WindowsFormsApp1
             // now, the timer ran out or the file started existing, so...
             if(!File.Exists(outputFilePath))
             {
-                throw new InvalidOperationException("File containig output: " + outputFilePath + " that should be created by bat file: " + batName + ".bat does not exist");
+                throw new IOException("File containig output: " + outputFilePath + " that should be created by bat file: " + batName + ".bat does not exist");
             } 
             else
             {
@@ -186,11 +177,41 @@ namespace WindowsFormsApp1
             }
         }
 
-        //if device has correct status and is ready for testing
+        #endregion
+
+        #region ExecutingActions
+
+        //Launches an app with provided packagename. Returns true if launch succeeded and false if launch failed.
+        public static bool LaunchApp(string packagename)
+        {
+            TestDatabase database = TestDatabase.Instance;
+            string command = "adb shell am start -n " + packagename + "/" + database.GetMainActivityName(packagename);
+            string launchAppResult = ExecuteCommandToFile(command, "launchAppResult");
+
+            if (launchAppResult.Contains("Error") || launchAppResult.Contains("error") || launchAppResult.Contains("Exception") || launchAppResult.Contains("exception"))
+                return false;
+            else
+                return true;
+        }
+
+        public static void InputTap(int x, int y)
+        {
+            string command = "adb shell input tap " + x + " " + y;
+            ExecuteCommand(command);
+        }
+
+        public static void InputBack()
+        {
+            ExecuteCommand("adb shell input keyevent 4");
+        }
+
+        #endregion
+
+        #region GetDeviceInfos
+
         public static bool IsDeviceReady()
         { 
-
-            StreamReader sr = ExecuteCommandGetOutput("adb devices");
+            StreamReader sr = GetExecutedCommandOutput("adb devices");
 
             int devicesCount = 0;
             string tempLine = "";
@@ -221,14 +242,13 @@ namespace WindowsFormsApp1
             {
                 return false;
             }
-
         }
 
-        //returns ID of device if it's ready; else returns descriptive error message
+        //Returns ID of device if the device is ready; otherwise returns descriptive error message
         public static string GetDeviceStatus()
         {
 
-            StreamReader sr = ExecuteCommandGetOutput("adb devices");
+            StreamReader sr = GetExecutedCommandOutput("adb devices");
 
             int devicesCount = 0;
             string tempLine = "";
@@ -270,25 +290,11 @@ namespace WindowsFormsApp1
 
         }
 
-        public static bool LaunchApp(string packagename)
-        {
-            TestDatabase database = TestDatabase.Instance;
-            string command = "adb shell am start -n " + packagename + "/" + database.GetMainActivityName(packagename);
-            string launchAppResult = ExecuteCommandToFile(command, "launchAppResult");
-
-            if (launchAppResult.Contains("Error") || launchAppResult.Contains("error") || launchAppResult.Contains("Exception") || launchAppResult.Contains("exception"))
-                return false;
-
-            return true;
-
-
-        }
-
-        //not really working because adb shell cmd package list packages returns output that never ends
+        //Not used, on To Fix List. While loop never ends as if there was no EOF.
         public static bool IsAppInstalled(string packagename)
         {
             string command = "adb shell cmd package list packages";
-            StreamReader sr = ExecuteCommandGetOutput(command);
+            StreamReader sr = GetExecutedCommandOutput(command);
 
             string tempLine = "";
             while (sr.Peek() != -1)
@@ -304,7 +310,8 @@ namespace WindowsFormsApp1
         public static string GetProcessPID(string packagename)
         {
             string processID = "";
-            //launching the process may take time so if no pid was found it sleeps for 500 ms (ant then retries - total of 20 times) which gives 10 seconds for an app to launch. After that time an exception will be thrown.
+
+            //Launching an app on external device may take some time and there is no control of it. If no PID was found this method sleeps for 500 ms, and then retries - total of 20 (pseudoTimer) times, which gives 10 seconds for an app to launch. After that time it assumes that launch failed or something went wrong and an exception will be thrown.
             int pseudoTimer = 20;
 
             while (pseudoTimer > 0)
@@ -322,38 +329,33 @@ namespace WindowsFormsApp1
             throw new ArgumentException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
         }
 
-        //inputs tap on the screen at the given coordinates
-        public static void InputTap(int x, int y)
-        {
-            string command = "adb shell input tap " + x + " " + y;
-
-            Process cmd = new Process();
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.CreateNoWindow = true;
-            cmd.Start();
-
-            //getting output
-            cmd.StandardInput.WriteLine(command);
-            cmd.Close();
-        }
-
-        public static void InputBack()
-        {
-            ExecuteCommand("adb shell input keyevent 4");
-        }
         #endregion
 
         #region LogcatLogic
 
-        //begin logcat starts two processes collecting two logcats. One of them is detailed which will be helpful for debugging and the second one is brief which is useful for this program.
-        //both of them need to be maintained
+        public struct Logcat
+        {
+            public string briefLogcatPath { get; set; }
+            public string detailedLogcatPath { get; set; }
+            public List<string> logs { get; set; }
+        }
+
+        //Begin logcat starts two processes collecting two logcats. Both of them need to be maintained.
+        //There is a reason .bat is used here. Cmd.exe crashes and stops logging after a few minutes.
+        //One of them is "detailedLogcat" which is collecting all info related to this PID and it will be helpful for debugging
+        //The second one is "briefLogcat" which is used by this program to determine conditions and actions of TestSteps.
+        //The logic is:
+        // 1. Check if files exist - if yes, delete them (they may be the result of the previous run)
+        // 2. Clear device's logcat
+        // 3. Run new process for detailed logcat
+        // 4. Run new process for brief logcat
+        // 5. Return logcat struct
         public static Logcat BeginLogcat(string processPID, string packagename)
         {
             //first, clean up the old files
             string briefLogcatPath = executedDirectoryPath + "/logcat/brieflLogcat.txt";
             string detailedLogcatPath = executedDirectoryPath + "/logcat/detailedlogcat.txt";
+
             if(File.Exists(briefLogcatPath))
             {
                 File.Delete(briefLogcatPath);
@@ -363,48 +365,42 @@ namespace WindowsFormsApp1
                 File.Delete(detailedLogcatPath);
             }
 
-
             Logcat logcat = new Logcat();
             logcat.logs = new List<string>();
 
-            //clears current logcat
             ExecuteCommand("adb logcat -c");
 
-            //There is a reason .bat is used here. Cmd.exe crashes and stops logcat after a few minutes.
-            //Runs new process for detailed logcat
             Process cmdDetailed = new Process();
             cmdDetailed.StartInfo.UseShellExecute = true;
             cmdDetailed.StartInfo.FileName = "startDetailedLogcat.bat";
             cmdDetailed.StartInfo.Arguments = processPID;
             cmdDetailed.Start();
-            logcat.detailedLogcatProcessID = cmdDetailed.Id;
             logcat.detailedLogcatPath = executedDirectoryPath + "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            cmdDetailed.Close();
 
-            //runs new process for brief logcat
             Process cmdBrief = new Process();
             cmdBrief.StartInfo.UseShellExecute = true;
             cmdBrief.StartInfo.FileName = "startBriefLogcat.bat";            
             cmdBrief.Start();
-            logcat.briefLogcatProcessID = cmdBrief.Id;
             logcat.briefLogcatPath = executedDirectoryPath + "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            cmdBrief.Close();
 
             return logcat;
         }
 
-        //todo
+        //TODO
         public static void EndLogcat (Logcat logcat)
         {
-            Process cmdBrief = Process.GetProcessById(logcat.briefLogcatProcessID);
-            cmdBrief.Kill();
-            Process cmdDetailed = Process.GetProcessById(logcat.detailedLogcatProcessID);
-            cmdDetailed.Kill();
+
         }
 
-        //refreshes logcat starting 
+        //The logic is:
+        //1. Make copy from the "source" logcat (for both logcats)
+        //2. Just ReadLine(); through logs  until it reaches offset
+        //3. Read logs after the offset and place them into Logcat struct
+        //4. Return Logcat
         public static Logcat UpdateLogcat(Logcat logcat, int offset)
         {
-
-            //make copy from the "source" logcat (for both logcats)
             File.Copy(briefLogcatSourcePath, logcat.briefLogcatPath, true);
             File.Copy(detailedLogcatSourcePath, logcat.detailedLogcatPath, true);
 
@@ -434,22 +430,6 @@ namespace WindowsFormsApp1
         #endregion
 
         #region Helpers
-
-        public static string RemoveWhiteSpacesFromString(string input)
-        {
-            //first, replaces all kind of possible whitespaces to ' ' <-- this space
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (char.IsWhiteSpace(input[i]))
-                {
-                    input.Replace(input[i], ' ');
-                }
-            }
-
-            //second, replaces this particular space whith empty
-            input.Replace(" ", string.Empty);
-            return input;
-        }
 
         public static string RemoveNonNumericFromString(string input)
         {

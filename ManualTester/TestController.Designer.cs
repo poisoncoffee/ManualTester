@@ -38,7 +38,7 @@
             this.sequenceDefinitionsListBox = new System.Windows.Forms.ListBox();
             this.moveSequenceDown = new System.Windows.Forms.Button();
             this.moveSequenceUp = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.runTestButton = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -81,7 +81,7 @@
             this.connectedDeviceRefreshButton.TabIndex = 10;
             this.connectedDeviceRefreshButton.Text = "R";
             this.connectedDeviceRefreshButton.UseVisualStyleBackColor = true;
-            this.connectedDeviceRefreshButton.Click += new System.EventHandler(this.button2_Click);
+            this.connectedDeviceRefreshButton.Click += new System.EventHandler(this.connectedDeviceRefreshButton_Click);
             // 
             // loadSequencesButton
             // 
@@ -149,18 +149,18 @@
             this.moveSequenceUp.UseVisualStyleBackColor = true;
             this.moveSequenceUp.Click += new System.EventHandler(this.moveSequenceUp_Click);
             // 
-            // button1
+            // runTestButton
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.runTestButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(6, 32);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(212, 25);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "RUN TEST";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.runTestButton.Location = new System.Drawing.Point(6, 32);
+            this.runTestButton.Name = "runTestButton";
+            this.runTestButton.Size = new System.Drawing.Size(212, 25);
+            this.runTestButton.TabIndex = 0;
+            this.runTestButton.Text = "RUN TEST";
+            this.runTestButton.UseVisualStyleBackColor = true;
+            this.runTestButton.Click += new System.EventHandler(this.runTestButton_Click);
             // 
             // tabControl
             // 
@@ -196,7 +196,7 @@
             this.tabPage2.Controls.Add(this.consoleOutput);
             this.tabPage2.Controls.Add(this.choosenStepsStatusCheckedList);
             this.tabPage2.Controls.Add(this.connectedDeviceRefreshButton);
-            this.tabPage2.Controls.Add(this.button1);
+            this.tabPage2.Controls.Add(this.runTestButton);
             this.tabPage2.Controls.Add(this.connectedDeviceIDLabel);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -244,7 +244,6 @@
             this.Controls.Add(this.tabControl);
             this.Name = "TestController";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
@@ -264,7 +263,7 @@
         private System.Windows.Forms.ListBox sequenceDefinitionsListBox;
         private System.Windows.Forms.Button moveSequenceDown;
         private System.Windows.Forms.Button moveSequenceUp;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button runTestButton;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
