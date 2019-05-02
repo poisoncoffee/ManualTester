@@ -1,0 +1,1 @@
+adb logcat -s Unity > logcat/brieflogcat.txt

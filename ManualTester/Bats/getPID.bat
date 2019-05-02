@@ -1,0 +1,1 @@
+adb shell pidof -s %1 > getPID.txt
