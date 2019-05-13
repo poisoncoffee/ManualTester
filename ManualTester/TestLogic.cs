@@ -70,9 +70,10 @@ namespace WindowsFormsApp1
             logcat = DeviceModel.BeginLogcat(processPID, packagename);
 
             //now execute every step
-            foreach(TestStep step in testStepsPlan)
+            int testStepIndex = 0;
+            while (testStepIndex < testStepsPlan.Count)
             {
-                ExecuteStep:
+                TestStep currentStep = testStepsPlan[testStepIndex];
                 bool isStepSuccess = false;
                 bool isConditionPresent = false;
                 bool isConfirmationPresent = false;
@@ -80,7 +81,7 @@ namespace WindowsFormsApp1
 
                 //execute action. 
                 Thread.Sleep(1500);                         //TODO: Individual delay for each step
-                DeviceModel.InputTap(step.posX, step.posY); //TODO: TODO: Differend kinds of actions
+                DeviceModel.InputTap(currentStep.posX, currentStep.posY); //TODO: Differend kinds of actions, not just tap
 
                 while (!isStepSuccess)
                 {
@@ -92,25 +93,25 @@ namespace WindowsFormsApp1
                     {
                         if (!isConditionPresent)
                         {
-                            if (step.conditionLog.Count == 0)
+                            if (currentStep.conditionLog.Count == 0)
                             {
                                 isConditionPresent = true;
                             }
                             else
                             {
-                                isConditionPresent = IsTargetPresent(logcat.logs[logcatOffset], step.conditionLog);
+                                isConditionPresent = IsTargetPresent(logcat.logs[logcatOffset], currentStep.conditionLog);
                             }
                         }
 
                         if (isConditionPresent && !isConfirmationPresent)
                         {
-                            if (step.confirmationLog.Count == 0)
+                            if (currentStep.confirmationLog.Count == 0)
                             {
                                 isConfirmationPresent = true;
                             }
                             else
                             {
-                                isConfirmationPresent = IsTargetPresent(logcat.logs[logcatOffset], step.confirmationLog);
+                                isConfirmationPresent = IsTargetPresent(logcat.logs[logcatOffset], currentStep.confirmationLog);
                             }
                         }
 
@@ -127,7 +128,8 @@ namespace WindowsFormsApp1
                     //If !isStepSuccess is checked later on because there is a possibility to retry
                     if (isStepSuccess)
                     {
-                        OnStepSucceeded(step.testStepID);
+                        OnStepSucceeded(currentStep.testStepID);
+                        testStepIndex++;
                         break;
                     }
 
@@ -135,32 +137,36 @@ namespace WindowsFormsApp1
                     Thread.Sleep(500);
                     alreadyWaitedFor += 500;
 
-                    if (alreadyWaitedFor > step.terminationTime)     //unless it times out
+                    if (alreadyWaitedFor > currentStep.terminationTime)     //unless it times out
                     {
                         break;
                     }
-                }  
-                if(!isStepSuccess)
+                }
+
+                if (!isStepSuccess)
                 {
-                    switch (step.actionIfFailed)
+                    switch (currentStep.actionIfFailed)
                     {
                         case TestDatabase.TestAction.Back:
                             DeviceModel.InputBack();
+                            testStepIndex++;
                             break;
                         case TestDatabase.TestAction.BackAndRetry:
                             DeviceModel.InputBack();
-                            goto ExecuteStep;
+                            break;
                         case TestDatabase.TestAction.Next:
-                            OnStepFailed(step.testStepID);
+                            OnStepFailed(currentStep.testStepID);
+                            testStepIndex++;
                             break;
                         case TestDatabase.TestAction.Retry:
-                            goto ExecuteStep;
+                            break;
                         case TestDatabase.TestAction.Stop:
-                            OnStepFailed(step.testStepID);
+                            OnStepFailed(currentStep.testStepID);
                             OnTestEnded(TestResultEventArgs.ResultType.StepFailed);
+                            testStepIndex = testStepsPlan.Count;
                             break;
                         default:
-                            goto case TestDatabase.TestAction.Stop;
+                            throw new ArgumentException("No behaviour found for this type of action: " + Enum.GetName(typeof(TestDatabase.TestAction), currentStep.actionIfFailed));
                     }
 
                     //It checks if the device is disconnected to be sure it was not the cause of the failure.
@@ -168,8 +174,10 @@ namespace WindowsFormsApp1
                     {
                         OnTestEnded(TestResultEventArgs.ResultType.DeviceDisconnected);
                     }
+
                 }
             }
+
         }
 
         private bool IsTargetPresent(string logcatLog, List<string> targetLogs)
