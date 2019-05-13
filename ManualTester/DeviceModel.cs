@@ -153,27 +153,22 @@ namespace WindowsFormsApp1
                 string outputCopyPath = outputFilePath + ".copy.txt";
                 int pseudoTimer2 = 20;
 
-            TryToRead:
-                if (pseudoTimer2 > 0)
+                while (pseudoTimer2 > 0)
                 {
+                    //this is all trycatched because the program often it tries to copy file while it's still used by the .bat file (.bat is still creating this file).
                     try
                     {
                         output = File.ReadAllText(outputFilePath);
+                        return output;
                     }
                     catch (IOException)
                     {
-                        //often it tries to copy file while it's still used by the .bat file (.bat is still creating this file).
                         Thread.Sleep(1000);
                         pseudoTimer2--;
-                        goto TryToRead;
                     }
                 }
-                else
-                {
-                    throw new IOException("Unable to open file: " + outputFilePath + " that should be created by bat file: " + batName);
-                }
 
-                return output;
+                throw new IOException("Unable to open file: " + outputFilePath + " that should be created by bat file: " + batName);
             }
         }
 
