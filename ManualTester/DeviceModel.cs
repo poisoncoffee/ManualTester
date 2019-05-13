@@ -360,8 +360,11 @@ namespace WindowsFormsApp1
                 File.Delete(detailedLogcatPath);
             }
 
+            //second, create new ones
             Logcat logcat = new Logcat();
             logcat.logs = new List<string>();
+            string directoryPath = executedDirectoryPath + "/logcat/";
+            Directory.CreateDirectory(directoryPath);
 
             ExecuteCommand("adb logcat -c");
 
