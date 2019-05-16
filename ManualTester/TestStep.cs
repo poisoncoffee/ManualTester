@@ -25,7 +25,7 @@ namespace WindowsFormsApp1
         public List<string> conditionLog;                   //[TODO] Step will be executed only if at least one of the conditionLogs is present. If the condition is absent, the step ends with success.
         public List<string> confirmationLog;                //Step ends with a success if at least one of the confirmationLog is present. If the confirmation is absent, the stem ends with fail.
 
-        public int delayTime;                               //[TODO] Time in miliseconds. Amount of time the program will wait before executing step.
+        public int waitTime;                               //[TODO] Time in miliseconds. Amount of time the program will wait before executing step.
         public int terminationTime;                         //Time in miliseconds. If no confirmation arrived after this time, step is recognized as failed. Test Logic checks every 500+ ms
 
         public int posY;                                    //Y position of tap (needs to be provided only for steps of type Tap) [TODO] Support for 1. Different resolutions 2. Different aspect ratios 3. Safe Area sesnivity

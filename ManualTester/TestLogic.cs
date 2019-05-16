@@ -34,6 +34,7 @@ namespace WindowsFormsApp1
 
         private string packagename;
         private string processPID;
+        private Device device;
         private DeviceModel.Logcat logcat = new DeviceModel.Logcat();
 
         public TestLogic(string givenPackagename)
@@ -41,10 +42,11 @@ namespace WindowsFormsApp1
             packagename = givenPackagename;
         }
 
-        public void CreateTest(List<TestStep> testStepPlan, Device device)
+        public void CreateTest(List<TestStep> testStepPlan, Device givenDevice)
         {
             if(DeviceModel.IsDeviceReady())
             {
+                device = givenDevice;
                 if (DeviceModel.LaunchApp(packagename) || forceTest)
                 {
                     processPID = DeviceModel.GetProcessPID(packagename);
@@ -79,9 +81,8 @@ namespace WindowsFormsApp1
                 bool isConfirmationPresent = false;
                 int alreadyWaitedFor = 0;
 
-                //execute action. 
                 Thread.Sleep(1500);                         //TODO: Individual delay for each step
-                DeviceModel.InputTap(currentStep.posX, currentStep.posY); //TODO: Differend kinds of actions, not just tap
+                ExecuteAction(currentStep);
 
                 while (!isStepSuccess)
                 {
@@ -181,6 +182,24 @@ namespace WindowsFormsApp1
                 }
             }
             return false;
+        }
+
+        private void ExecuteAction(TestStep step)
+        {
+            switch (step.testStepType)
+            {
+                case TestStep.StepType.Tap:
+                    DeviceModel.InputTap(step.posX, step.posY);
+                    break;
+                case TestStep.StepType.Wait:
+                    Thread.Sleep(step.waitTime);
+                    break;
+                case TestStep.StepType.Command:
+                    DeviceModel.ExecuteCommand(step.argument);
+                    break;
+                default:
+                    throw new NotImplementedException("Behaviour for this Step Type: " + step.testStepType + " is not defined");
+            }
         }
 
 
