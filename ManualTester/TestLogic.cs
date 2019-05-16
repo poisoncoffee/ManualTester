@@ -37,6 +37,12 @@ namespace WindowsFormsApp1
         private Device device;
         private DeviceModel.Logcat logcat = new DeviceModel.Logcat();
 
+        private struct Coordinates
+        {
+            public int posX;
+            public int posY;
+        }
+
         public TestLogic(string givenPackagename)
         {
             packagename = givenPackagename;
@@ -189,7 +195,8 @@ namespace WindowsFormsApp1
             switch (step.testStepType)
             {
                 case TestStep.StepType.Tap:
-                    DeviceModel.InputTap(step.posX, step.posY);
+                    Coordinates coordinates = CalculateTapCoordinates(step);
+                    DeviceModel.InputTap(coordinates.posX, coordinates.posY);
                     break;
                 case TestStep.StepType.Wait:
                     Thread.Sleep(step.waitTime);
@@ -200,6 +207,14 @@ namespace WindowsFormsApp1
                 default:
                     throw new NotImplementedException("Behaviour for this Step Type: " + step.testStepType + " is not defined");
             }
+        }
+
+        private Coordinates CalculateTapCoordinates(TestStep step)
+        {
+            Coordinates result = new Coordinates();
+            result.posX = (int)(device.resolutionX * step.posX);
+            result.posY = (int)(device.resolutionY * step.posY);
+            return result;
         }
 
 

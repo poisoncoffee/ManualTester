@@ -28,8 +28,8 @@ namespace WindowsFormsApp1
         public int waitTime;                               //[TODO] Time in miliseconds. Amount of time the program will wait before executing step.
         public int terminationTime;                         //Time in miliseconds. If no confirmation arrived after this time, step is recognized as failed. Test Logic checks every 500+ ms
 
-        public int posY;                                    //Y position of tap (needs to be provided only for steps of type Tap) [TODO] Support for 1. Different resolutions 2. Different aspect ratios 3. Safe Area sesnivity
-        public int posX;                                    //X position of tap (needs to be provided only for steps of type Tap) [TODO] 1. Different resolutions 2. Different aspect ratios 3. Safe Area sesnivity
+        public double posY;                                    //Y position of tap (needs to be provided only for steps of type Tap) [TODO] Support for 1. Different resolutions 2. Different aspect ratios 3. Safe Area sesnivity
+        public double posX;                                    //X position of tap (needs to be provided only for steps of type Tap) [TODO] 1. Different resolutions 2. Different aspect ratios 3. Safe Area sesnivity
 
     }
 }
