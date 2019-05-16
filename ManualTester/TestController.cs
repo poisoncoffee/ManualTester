@@ -162,7 +162,20 @@ namespace WindowsFormsApp1
 
         private void RefreshDevices()
         {
-            connectedDeviceIDLabel.Text = DeviceModel.GetDeviceStatus();
+            List<Device> ConnectedDevices = DeviceModel.GetConnectedDevices();
+            if(ConnectedDevices.Count == 0)
+            {
+                connectedDeviceIDLabel.Text = "No devices connected";
+            }
+            else if (ConnectedDevices.Count == 1)
+            {
+                connectedDeviceIDLabel.Text = ConnectedDevices[0].serial + " " + ConnectedDevices[0].status;
+            }
+            else
+            {
+                connectedDeviceIDLabel.Text = "More than one device connected";
+            }
+
         }
 
         //Changes all controls in the window to enabled or disabled
@@ -188,12 +201,14 @@ namespace WindowsFormsApp1
         //The logic is:
         // 1. Check if any sequence has been choosen - if yes, convert them to TestSteps and fill the checked list with them
         // 2. Subscribe to all events
-        // 3. Start new Task
+        // 3. Check the device
+        // 4. Start new Task
         private void StartTest(bool force)
         {
             string packagename = comboBoxWithAvailableApps.Text;
             TestDatabase database = TestDatabase.Instance;
-            TestLogic testManager = new TestLogic(packagename);
+            TestLogic testLogic = new TestLogic(packagename);
+            List<Device> ReadyDevices = new List<Device>();
 
             if (choosenSequenceListBox.Items.Count != 0)
             {
@@ -207,18 +222,29 @@ namespace WindowsFormsApp1
 
             FillChoosenStepStatusCheckedList(choosenTestSteps);
 
+            //check the devices
+            if(DeviceModel.IsDeviceReady())
+            {
+                ReadyDevices = DeviceModel.GetReadyDevicesFullInfo();
+            }
+            else
+            {
+                MessageBox.Show("No device able to run the test", "Unable to start test", MessageBoxButtons.OK);
+                return;
+            }
+
             //subscribe to all events
-            testManager.TestEnded += OnTestEnded;
-            testManager.StepSucceeded += OnStepSucceeded;
-            testManager.DeviceNotConnected += OnDeviceNotConnected;
-            testManager.AppLaunchFailed += OnAppLaunchFailed;
-            testManager.LogRead += OnLogRead;
+            testLogic.TestEnded += OnTestEnded;
+            testLogic.StepSucceeded += OnStepSucceeded;
+            testLogic.DeviceNotConnected += OnDeviceNotConnected;
+            testLogic.AppLaunchFailed += OnAppLaunchFailed;
+            testLogic.LogRead += OnLogRead;
 
             //force set to true launches test despite fact that app could not be opened via adb - assumes the user launched the app manually. See OnAppLaunchFailed event
             if (force)
-                testManager.forceTest = true;
+                testLogic.forceTest = true;
 
-            test = new Task(() => { testManager.CreateTest(choosenTestSteps); } );
+            test = new Task(() => { testLogic.CreateTest(choosenTestSteps, ReadyDevices[0]); } ); //TODO: Now supporting only one device
             test.Start();
         }
 
@@ -311,6 +337,5 @@ namespace WindowsFormsApp1
         }
 
         #endregion
-
     }
 }

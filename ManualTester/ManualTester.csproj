@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Device.cs" />
     <Compile Include="StepDefinitions.cs" />
     <Compile Include="TestDatabase.cs" />
     <Compile Include="DeviceModel.cs" />

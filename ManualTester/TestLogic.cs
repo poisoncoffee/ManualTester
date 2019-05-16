@@ -41,7 +41,7 @@ namespace WindowsFormsApp1
             packagename = givenPackagename;
         }
 
-        public void CreateTest(List<TestStep> testStepPlan)
+        public void CreateTest(List<TestStep> testStepPlan, Device device)
         {
             if(DeviceModel.IsDeviceReady())
             {

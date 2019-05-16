@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace WindowsFormsApp1
 {
@@ -25,13 +23,20 @@ namespace WindowsFormsApp1
 
         #region ExecutingCommands
 
-        public static void ExecuteCommand(string command)
+        public static Process CreateCmdProcess()
         {
             Process cmd = new Process();
             cmd.StartInfo.UseShellExecute = false;
             cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.CreateNoWindow = true;
+            return cmd;
+        }
+
+        public static void ExecuteCommand(string command)
+        {
+            Process cmd = CreateCmdProcess();
             cmd.Start();
             cmd.StandardInput.WriteLine(command);
             cmd.Close();
@@ -39,16 +44,8 @@ namespace WindowsFormsApp1
 
         private static StreamReader GetExecutedCommandOutput(string command)
         {
-            //starting cmd process
-            Process cmd = new Process();
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardOutput = true;
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.CreateNoWindow = true;
+            Process cmd = CreateCmdProcess();
             cmd.Start();
-
-            //getting output
             cmd.StandardInput.WriteLine(command);
             StreamReader output = cmd.StandardOutput;
             cmd.StandardInput.WriteLine("exit");
@@ -76,12 +73,7 @@ namespace WindowsFormsApp1
                 File.Delete(filePathCopy);
             }
 
-            Process cmd = new Process();
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardOutput = true;
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.CreateNoWindow = true;
+            Process cmd = CreateCmdProcess();
             cmd.Start();
             command += " > " + filePath;
             cmd.StandardInput.WriteLine(command);
@@ -95,11 +87,12 @@ namespace WindowsFormsApp1
                 pseudoTimer--;
             }
 
+            Thread.Sleep(1000);
+
             if(!File.Exists(filePath))
             {
                 throw new IOException("File: " + filePath + " that should be created by command " + command + "does not exist");
             }
-
             else
             {
                 File.Copy(filePath, filePathCopy, true);
@@ -204,85 +197,87 @@ namespace WindowsFormsApp1
 
         #region GetDeviceInfos
 
+        //Only one device can be connected, and this device's status must be ready. If this two requirements are met, device is ready.
         public static bool IsDeviceReady()
-        { 
-            StreamReader sr = GetExecutedCommandOutput("adb devices");
-
-            int devicesCount = 0;
-            string tempLine = "";
-
-            //searching for  device statuses ("device", "offline", "unauthorized") reading output line by line
-            while (sr.Peek() != -1)
-            {
-                tempLine = sr.ReadLine();
-                //if there is a device connected with correct status
-                if (tempLine.Contains("device") && !tempLine.Contains("devices"))
-                {
-                    devicesCount++;
-                }
-                // if there is a device but with incorrect status
-                else if (tempLine.Contains("offline") || tempLine.Contains("unauthorized"))
-                {
-                    return false;
-                }
-            }
-
-            // only one device connected and with correct status
-            if (devicesCount == 1)
+        {
+            List<Device> ConnectedDevices = GetConnectedDevices();
+            if(ConnectedDevices.Count == 1 && ConnectedDevices[0].status == Device.Status.Ready)
             {
                 return true;
             }
-            // any other case
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
-        //Returns ID of device if the device is ready; otherwise returns descriptive error message
-        public static string GetDeviceStatus()
+        public static List<Device> GetConnectedDevices()
         {
-
+            List<Device> ConnectedDevices = new List<Device>();
             StreamReader sr = GetExecutedCommandOutput("adb devices");
-
-            int devicesCount = 0;
             string tempLine = "";
-            string status = "";
-
-            //searching for  device statuses ("device", "offline", "unauthorized") reading output line by line
             while (sr.Peek() != -1)
             {
                 tempLine = sr.ReadLine();
                 //if there is a device connected with correct status
                 if (tempLine.Contains("device") && !tempLine.Contains("devices"))
                 {
-                    status = tempLine.Remove(tempLine.Length - 7);
-                    devicesCount++;
+                    Device device = new Device();
+                    device.status = Device.Status.Ready;
+                    device.serial = tempLine.Remove(tempLine.Length - 7);
+                    ConnectedDevices.Add(device);
                 }
                 // if there is a device but with incorrect status
-                else if (tempLine.Contains("offline") || tempLine.Contains("unauthorized"))
+                else if (tempLine.Contains("offline"))
                 {
-                    status = "Device offline or unauthorized";
-                    devicesCount++;
+                    Device device = new Device();
+                    device.status = Device.Status.Offline;
+                    device.serial = tempLine.Remove(tempLine.Length - 8);
+                    ConnectedDevices.Add(device);
+                }
+                else if (tempLine.Contains("unauthorized"))
+                {
+                    Device device = new Device();
+                    device.status = Device.Status.Unauthorized;
+                    device.serial = tempLine.Remove(tempLine.Length - 13);
+                    ConnectedDevices.Add(device);
                 }
             }
 
-            // only one device connected
-            if (devicesCount == 1)
+            return ConnectedDevices;
+        }
+
+        public static List<Device> GetReadyDevicesFullInfo()
+        {
+            List<Device> ConnectedDevices = GetConnectedDevices();
+            List<Device> ReadyDevices = new List<Device>();
+
+            foreach(Device device in ConnectedDevices)
             {
-                return status;
-            }
-            // more than one device connected
-            else if (devicesCount > 1)
-            {
-                return "More than one device connected";
-            }
-            // no devices
-            else
-            {
-                return "No devices found";
+                if(device.status == Device.Status.Ready)
+                {
+                    GetDevicesResolution(device);
+                    ReadyDevices.Add(device);
+                }
             }
 
+            return ReadyDevices;
+        }
+
+        public static Device GetDevicesResolution(Device device)
+        {
+            string command = "adb -s " + device.serial + " shell wm size";
+
+            string output = ExecuteCommandToFile(command, "resolution");
+            MatchCollection Matches = Regex.Matches(output, @"(\d+)");
+            if (Matches.Count == 2)      // Correct case - two values was found (Height and Width)
+            {
+                device.resolutionY = Int32.Parse(Matches[0].Value);
+                device.resolutionX = Int32.Parse(Matches[1].Value);
+                return device;
+            }
+            else                        // Incorrect case - something went wrong (values are incorrect)
+            {
+                throw new ArgumentException("Could not get resolution for device " + device.serial + ". ADB output is: " + output);
+            }
         }
 
         //Not used, on To Fix List. While loop never ends as if there was no EOF.
