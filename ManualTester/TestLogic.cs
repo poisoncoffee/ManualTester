@@ -93,26 +93,12 @@ namespace WindowsFormsApp1
                     {
                         if (!isConditionPresent)
                         {
-                            if (currentStep.conditionLog.Count == 0)
-                            {
-                                isConditionPresent = true;
-                            }
-                            else
-                            {
-                                isConditionPresent = IsTargetPresent(logcat.logs[logcatOffset], currentStep.conditionLog);
-                            }
+                            isConditionPresent = IsTargetPresent(logcat.logs[logcatOffset], currentStep.conditionLog);
                         }
 
                         if (isConditionPresent && !isConfirmationPresent)
                         {
-                            if (currentStep.confirmationLog.Count == 0)
-                            {
-                                isConfirmationPresent = true;
-                            }
-                            else
-                            {
-                                isConfirmationPresent = IsTargetPresent(logcat.logs[logcatOffset], currentStep.confirmationLog);
-                            }
+                            isConfirmationPresent =  IsTargetPresent(logcat.logs[logcatOffset], currentStep.confirmationLog);
                         }
 
                         if (isConditionPresent && isConfirmationPresent)
@@ -182,6 +168,11 @@ namespace WindowsFormsApp1
 
         private bool IsTargetPresent(string logcatLog, List<string> targetLogs)
         {
+            if (targetLogs.Count == 0)
+            {
+                return true;
+            }
+
             foreach (string targetLog in targetLogs)
             {
                 if (logcatLog.Contains(targetLog))
