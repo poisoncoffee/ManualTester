@@ -171,6 +171,7 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(668, 487);
             this.tabControl.TabIndex = 25;
+            this.tabControl.Tag = "";
             // 
             // tabPage1
             // 
@@ -187,7 +188,7 @@
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(660, 461);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.Text = "Tests Setup";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // tabPage2
@@ -203,7 +204,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(660, 461);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.Text = "Tests Execution";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // tipLabel
@@ -238,12 +239,15 @@
             // 
             // TestController
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(696, 509);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(694, 515);
             this.Controls.Add(this.tabControl);
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(710, 554);
+            this.MinimumSize = new System.Drawing.Size(710, 554);
             this.Name = "TestController";
-            this.Text = "Form1";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.Text = "Manual Tester";
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
