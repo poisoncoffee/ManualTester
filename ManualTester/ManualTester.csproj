@@ -70,6 +70,7 @@
     <Compile Include="IDeviceModel.cs" />
     <Compile Include="ILogcatOperator.cs" />
     <Compile Include="Logcat.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="StepDefinitions.cs" />
     <Compile Include="TestDatabase.cs" />
     <Compile Include="TestController.cs">

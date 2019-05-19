@@ -37,9 +37,9 @@ namespace WindowsFormsApp1
         }
 
         //TODO: Refactor (get rid of pseudoTimer)
-        public static string ExecuteCommandGetOutputFromFile(string command, string fileName)
+        public static string ExecuteCommandGetOutputFromFile(string command, string outputFileName)
         {
-            string filePath = "/" + fileName + ".txt";
+            string filePath = Settings.GetExecutedDirectoryPath() + "/" + outputFileName + ".txt";
             string filePathCopy = filePath + ".copy.txt";
 
             DeleteFileIfExists(filePath);
