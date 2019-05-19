@@ -50,23 +50,16 @@ namespace WindowsFormsApp1
 
         public void CreateTest(List<TestStep> testStepPlan, Device givenDevice)
         {
-            if(device.deviceModel.IsDeviceReady())
+            device = givenDevice;
+            if (device.deviceModel.LaunchApp(packagename) || forceTest)
             {
-                device = givenDevice;
-                if (device.deviceModel.LaunchApp(packagename) || forceTest)
-                {
-                    processPID = device.deviceModel.GetProcessPID(packagename);
-                    ExecuteTestSteps(testStepPlan);
-                }
-                else
-                {
-                    OnAppLaunchFailed(packagename);
-                }
+                processPID = device.deviceModel.GetProcessPID(packagename);
+                ExecuteTestSteps(testStepPlan);
             }
             else
             {
-                OnDeviceNotConnected(packagename);
-            }
+                OnAppLaunchFailed(packagename);
+            }          
         }
 
 

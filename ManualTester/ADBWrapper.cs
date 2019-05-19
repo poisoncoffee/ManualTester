@@ -196,10 +196,10 @@ namespace WindowsFormsApp1
             //clear device's logs
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
 
-            CommandLineExecutor.ExecuteBat("startDetailedLogcat", String.Empty);
+            CommandLineExecutor.ExecuteBat("startDetailedLogcat", processPID);
             CommandLineExecutor.ExecuteBat("startBriefLogcat", String.Empty);
-            logcat.detailedLogcatPath = "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
-            logcat.briefLogcatPath = "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            logcat.detailedLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            logcat.briefLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
 
             return logcat;
         }
@@ -211,8 +211,10 @@ namespace WindowsFormsApp1
         //4. Return Logcat
         public Logcat UpdateLogcat(Logcat logcat, int offset)
         {
-            File.Copy(@"/logcat/briefLogcat.txt", logcat.briefLogcatPath, true);
-            File.Copy(@"/logcat/detailedLogcat.txt", logcat.detailedLogcatPath, true);
+            string sourceBriefLogcatPath = Settings.GetExecutedDirectoryPath() + @"/logcat/briefLogcat.txt";
+            string sourceDetailedLogcatPath = Settings.GetExecutedDirectoryPath() + @"/logcat/detailedLogcat.txt";
+            File.Copy(sourceBriefLogcatPath, logcat.briefLogcatPath, true);
+            File.Copy(sourceDetailedLogcatPath, logcat.detailedLogcatPath, true);
 
             StreamReader file = new StreamReader(logcat.briefLogcatPath);
             int linesToSkip = offset;
