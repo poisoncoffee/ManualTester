@@ -12,8 +12,7 @@ namespace WindowsFormsApp1
         public enum StepType
         {
             Tap,
-            Wait,
-            Command,
+            Wait
         }
 
         public TestDatabase.TestAction actionIfSucceeded;   //[TODO] What to do if step succeeded

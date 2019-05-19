@@ -64,10 +64,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ADBWrapper.cs" />
+    <Compile Include="CommandLineExecutor.cs" />
     <Compile Include="Device.cs" />
+    <Compile Include="IDeviceModel.cs" />
+    <Compile Include="ILogcatOperator.cs" />
+    <Compile Include="Logcat.cs" />
     <Compile Include="StepDefinitions.cs" />
     <Compile Include="TestDatabase.cs" />
-    <Compile Include="DeviceModel.cs" />
     <Compile Include="TestController.cs">
       <SubType>Form</SubType>
     </Compile>

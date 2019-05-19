@@ -35,7 +35,7 @@ namespace WindowsFormsApp1
         private string packagename;
         private string processPID;
         private Device device;
-        private DeviceModel.Logcat logcat = new DeviceModel.Logcat();
+        private Logcat logcat = new Logcat();
 
         private struct Coordinates
         {
@@ -50,12 +50,12 @@ namespace WindowsFormsApp1
 
         public void CreateTest(List<TestStep> testStepPlan, Device givenDevice)
         {
-            if(DeviceModel.IsDeviceReady())
+            if(device.deviceModel.IsDeviceReady())
             {
                 device = givenDevice;
-                if (DeviceModel.LaunchApp(packagename) || forceTest)
+                if (device.deviceModel.LaunchApp(packagename) || forceTest)
                 {
-                    processPID = DeviceModel.GetProcessPID(packagename);
+                    processPID = device.deviceModel.GetProcessPID(packagename);
                     ExecuteTestSteps(testStepPlan);
                 }
                 else
@@ -75,7 +75,7 @@ namespace WindowsFormsApp1
             int logcatOffset = 0;
 
             //begin adb logcat
-            logcat = DeviceModel.BeginLogcat(processPID, packagename);
+            logcat = device.logcatOperator.BeginLogcat(processPID, packagename);
 
             //now execute every step
             int testStepIndex = 0;
@@ -92,7 +92,7 @@ namespace WindowsFormsApp1
 
                 while (!isStepSuccess)
                 {
-                    logcat = DeviceModel.UpdateLogcat(logcat, logcatOffset);
+                    logcat = device.logcatOperator.UpdateLogcat(logcat, logcatOffset);
 
                     //Read new logs and check every line
                     //TODO: Blacklist. Check every line for error or exception
@@ -141,11 +141,11 @@ namespace WindowsFormsApp1
                     switch (currentStep.actionIfFailed)
                     {
                         case TestDatabase.TestAction.Back:
-                            DeviceModel.InputBack();
+                            device.deviceModel.InputBack();
                             testStepIndex++;
                             break;
                         case TestDatabase.TestAction.BackAndRetry:
-                            DeviceModel.InputBack();
+                            device.deviceModel.InputBack();
                             break;
                         case TestDatabase.TestAction.Next:
                             OnStepFailed(currentStep.testStepID);
@@ -163,7 +163,7 @@ namespace WindowsFormsApp1
                     }
 
                     //It checks if the device is disconnected to be sure it was not the cause of the failure.
-                    if (!DeviceModel.IsDeviceReady())
+                    if (!device.deviceModel.IsDeviceReady())
                     {
                         OnTestEnded(TestResultEventArgs.ResultType.DeviceDisconnected);
                     }
@@ -196,13 +196,10 @@ namespace WindowsFormsApp1
             {
                 case TestStep.StepType.Tap:
                     Coordinates coordinates = CalculateTapCoordinates(step);
-                    DeviceModel.InputTap(coordinates.posX, coordinates.posY);
+                    device.deviceModel.InputTap(coordinates.posX, coordinates.posY);
                     break;
                 case TestStep.StepType.Wait:
                     Thread.Sleep(step.waitTime);
-                    break;
-                case TestStep.StepType.Command:
-                    DeviceModel.ExecuteCommand(step.argument);
                     break;
                 default:
                     throw new NotImplementedException("Behaviour for this Step Type: " + step.testStepType + " is not defined");

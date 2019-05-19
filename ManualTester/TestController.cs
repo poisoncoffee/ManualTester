@@ -16,11 +16,13 @@ namespace WindowsFormsApp1
         private string currentProjectsPackagename = "";
         private bool isUpdatingConsoleOutputAllowed = true;
         private Task test;
+        private IDeviceModel currentPlatform;
 
 
         public TestController()
         {
             InitializeComponent();
+            SetCurrentPlatform();
             RefreshDevices();
             comboBoxWithAvailableApps.DataSource = GetAvailableAppsList();
         }
@@ -63,6 +65,12 @@ namespace WindowsFormsApp1
                 sequenceDefinitionsListBox.Items.Add(tsqname);
             }
 
+        }
+
+        private void choosenPlatformAndroid_CheckedChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show("No platform other than Android is supported", "No choice", MessageBoxButtons.OK);
+            choosenPlatformAndroid.Checked = true;
         }
 
         private void addSequence_Click(object sender, EventArgs e)
@@ -162,7 +170,7 @@ namespace WindowsFormsApp1
 
         private void RefreshDevices()
         {
-            List<Device> ConnectedDevices = DeviceModel.GetConnectedDevices();
+            List<Device> ConnectedDevices = currentPlatform.GetConnectedDevices();
             if(ConnectedDevices.Count == 0)
             {
                 connectedDeviceIDLabel.Text = "No devices connected";
@@ -188,6 +196,13 @@ namespace WindowsFormsApp1
                     c.Enabled = enabled;
                 }
             }
+        }
+
+        //TODO. Temporary solution - only one platform is supported right now
+        private void SetCurrentPlatform()
+        {
+            currentPlatform = new ADBWrapper();
+
         }
 
         private void UpdateConsoleOutput(string log)
@@ -223,9 +238,9 @@ namespace WindowsFormsApp1
             FillChoosenStepStatusCheckedList(choosenTestSteps);
 
             //check the devices
-            if(DeviceModel.IsDeviceReady())
+            if(currentPlatform.IsDeviceReady())
             {
-                ReadyDevices = DeviceModel.GetReadyDevicesFullInfo();
+                ReadyDevices = currentPlatform.GetReadyDevicesFullInfo();
             }
             else
             {
@@ -336,6 +351,9 @@ namespace WindowsFormsApp1
             }
         }
 
+
         #endregion
+
+
     }
 }

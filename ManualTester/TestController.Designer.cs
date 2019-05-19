@@ -41,6 +41,8 @@
             this.runTestButton = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.choosenPlatformAndroid = new System.Windows.Forms.RadioButton();
+            this.choosePlatformText = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tipLabel = new System.Windows.Forms.Label();
             this.consoleOutput = new System.Windows.Forms.TextBox();
@@ -175,6 +177,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.choosenPlatformAndroid);
+            this.tabPage1.Controls.Add(this.choosePlatformText);
             this.tabPage1.Controls.Add(this.comboBoxWithAvailableApps);
             this.tabPage1.Controls.Add(this.moveSequenceDown);
             this.tabPage1.Controls.Add(this.loadSequencesButton);
@@ -190,6 +194,28 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Tests Setup";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // choosenPlatformAndroid
+            // 
+            this.choosenPlatformAndroid.AutoSize = true;
+            this.choosenPlatformAndroid.Checked = true;
+            this.choosenPlatformAndroid.Location = new System.Drawing.Point(332, 33);
+            this.choosenPlatformAndroid.Name = "choosenPlatformAndroid";
+            this.choosenPlatformAndroid.Size = new System.Drawing.Size(61, 17);
+            this.choosenPlatformAndroid.TabIndex = 26;
+            this.choosenPlatformAndroid.TabStop = true;
+            this.choosenPlatformAndroid.Text = "Android";
+            this.choosenPlatformAndroid.UseVisualStyleBackColor = true;
+            this.choosenPlatformAndroid.CheckedChanged += new System.EventHandler(this.choosenPlatformAndroid_CheckedChanged);
+            // 
+            // choosePlatformText
+            // 
+            this.choosePlatformText.AutoSize = true;
+            this.choosePlatformText.Location = new System.Drawing.Point(329, 9);
+            this.choosePlatformText.Name = "choosePlatformText";
+            this.choosePlatformText.Size = new System.Drawing.Size(93, 13);
+            this.choosePlatformText.TabIndex = 25;
+            this.choosePlatformText.Text = "Choosen Platform:";
             // 
             // tabPage2
             // 
@@ -250,6 +276,7 @@
             this.Text = "Manual Tester";
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.ResumeLayout(false);
@@ -274,6 +301,8 @@
         private System.Windows.Forms.TextBox consoleOutput;
         private System.Windows.Forms.CheckedListBox choosenStepsStatusCheckedList;
         private System.Windows.Forms.Label tipLabel;
+        private System.Windows.Forms.RadioButton choosenPlatformAndroid;
+        private System.Windows.Forms.Label choosePlatformText;
     }
 }
 
