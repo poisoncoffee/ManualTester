@@ -36,7 +36,6 @@ namespace WindowsFormsApp1
             return output;
         }
 
-        //TODO: Refactor (get rid of pseudoTimer)
         public static string ExecuteCommandGetOutputFromFile(string command, string outputFileName)
         {
             string filePath = Settings.GetExecutedDirectoryPath() + "/" + outputFileName + ".txt";
@@ -48,15 +47,7 @@ namespace WindowsFormsApp1
             command += " > " + filePath;
             ExecuteCommand(command);
 
-            int pseudoTimer = 20;
-            while (pseudoTimer > 0 && !File.Exists(filePath))
-            {
-                // Does nothing. This loop waits for the file to start existing which does not happen immediately.
-                Thread.Sleep(500);
-                pseudoTimer--;
-            }
-
-            Thread.Sleep(1000);
+            SpinWait.SpinUntil(() => File.Exists(filePath), 7000);
 
             if (!File.Exists(filePath))
             {
