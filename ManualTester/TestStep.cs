@@ -12,7 +12,9 @@ namespace WindowsFormsApp1
         public enum StepType
         {
             Tap,
-            Wait
+            Back,
+            Wait,
+            ExecuteScript
         }
 
         public TestDatabase.TestAction actionIfSucceeded = TestDatabase.TestAction.Stop;    //[TODO] What to do if step succeeded
@@ -24,10 +26,12 @@ namespace WindowsFormsApp1
         public List<string> confirmationLog;                                                //Step ends with a success if at least one of the confirmationLog is present. If the confirmation is absent, the stem ends with fail.
 
         public int waitTime = 5000;                                                         //[TODO] Time in miliseconds. Amount of time the program will wait before executing step.
-        public int terminationTime = 10000;                                                 //Time in miliseconds. If no confirmation arrived after this time, step is recognized as failed. Test Logic checks every 500+ ms
+        public int terminationTime = 0;                                                     //Time in miliseconds. If no confirmation arrived after this time, step is recognized as failed. Test Logic checks every 500+ ms
 
         public double posY = 0;                                                             //Range 0-1 [TODO] Support for 1. Different aspect ratios 2. Safe Area sesnivity
         public double posX = 0;                                                             //Range 0-1 [TODO] Support for 1. Different aspect ratios 2. Safe Area sesnivity
+
+        public string scriptPath;                                                           //Path to script file
 
     }
 }

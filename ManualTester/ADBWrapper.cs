@@ -93,20 +93,11 @@ namespace WindowsFormsApp1
         public string GetProcessPID(string packageName)
         {
             string processID = "";
-
-            //Launching an app on external device may take some time and there is no control of it. If no PID was found this method sleeps for 500 ms, and then retries - total of 20 (pseudoTimer) times, which gives 10 seconds for an app to launch. After that time it assumes that launch failed or something went wrong and an exception will be thrown.
-            int pseudoTimer = 20;
-
-            while (pseudoTimer > 0)
+            processID = CommandLineExecutor.ExecuteCommandGetOutputFromFile("getPID", packageName);
+            processID = RemoveNonNumericFromString(processID);
+            if (processID != "")
             {
-                processID = CommandLineExecutor.ExecuteCommandGetOutputFromFile("getPID", packageName);
-                if (processID != "")
-                {
-                    processID = RemoveNonNumericFromString(processID);
-                    return processID;
-                }
-                Thread.Sleep(500);
-                pseudoTimer--;
+                return processID;
             }
 
             throw new TimeoutException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
@@ -196,8 +187,8 @@ namespace WindowsFormsApp1
             //clear device's logs
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
 
-            CommandLineExecutor.ExecuteBat("startDetailedLogcat", processPID);
-            CommandLineExecutor.ExecuteBat("startBriefLogcat", String.Empty);
+            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", processPID);
+            CommandLineExecutor.ExecuteBat("startBriefLogcat.bat", String.Empty);
             logcat.detailedLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
             logcat.briefLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
 
@@ -259,6 +250,38 @@ namespace WindowsFormsApp1
                 }
             }
             return output;
+        }
+
+
+        public static void WaitUntil(Func<bool> condition, int frequency, int maxTime)
+        {
+            while (!condition() && maxTime > 0)
+            {
+                Thread.Sleep(frequency);
+                maxTime -= frequency;
+            }
+
+            if (condition())
+                return;
+            else
+                throw new TimeoutException();
+        }
+
+        public readonly System.Threading.EventWaitHandle waitHandle = new System.Threading.AutoResetEvent(false);
+
+        public void SetWaitHandleIf(Func<bool> condition)
+        {
+            while(!condition())
+            {
+                //Nie robi nic ew. Thread.Sleep(time);
+            }
+
+            waitHandle.Set();
+        }
+
+        public void WaitForSignalOrTimeout(int seconds)
+        {
+            waitHandle.WaitOne(seconds);
         }
         #endregion
     }

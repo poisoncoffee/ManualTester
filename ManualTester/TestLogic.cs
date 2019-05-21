@@ -51,15 +51,8 @@ namespace WindowsFormsApp1
         public void CreateTest(List<TestStep> testStepPlan, Device givenDevice)
         {
             device = givenDevice;
-            if (device.deviceModel.LaunchApp(packagename) || forceTest)
-            {
-                processPID = device.deviceModel.GetProcessPID(packagename);
-                ExecuteTestSteps(testStepPlan);
-            }
-            else
-            {
-                OnAppLaunchFailed(packagename);
-            }          
+            processPID = device.deviceModel.GetProcessPID(packagename);
+            ExecuteTestSteps(testStepPlan);        
         }
 
 
@@ -193,6 +186,9 @@ namespace WindowsFormsApp1
                     break;
                 case TestStep.StepType.Wait:
                     Thread.Sleep(step.waitTime);
+                    break;
+                case TestStep.StepType.ExecuteScript:
+                    CommandLineExecutor.ExecuteBat(step.scriptPath, String.Empty);
                     break;
                 default:
                     throw new NotImplementedException("Behaviour for this Step Type: " + step.testStepType + " is not defined");
