@@ -92,8 +92,8 @@ namespace WindowsFormsApp1
 
         public string GetProcessPID(string packageName)
         {
-            string processID = "";
-            processID = CommandLineExecutor.ExecuteCommandGetOutputFromFile("getPID", packageName);
+            string command = "adb shell pidof -s " + packageName;
+            string processID = CommandLineExecutor.ExecuteCommandGetOutputFromFile(command, "processPID");
             processID = RemoveNonNumericFromString(processID);
             if (processID != "")
             {
