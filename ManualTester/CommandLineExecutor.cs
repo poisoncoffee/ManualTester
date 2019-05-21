@@ -68,7 +68,7 @@ namespace WindowsFormsApp1
         {
             Process cmdDetailed = new Process();
             cmdDetailed.StartInfo.UseShellExecute = true;
-            cmdDetailed.StartInfo.FileName = batName + ".bat";
+            cmdDetailed.StartInfo.FileName = batName;
             if (arguments.Length > 0)
                 cmdDetailed.StartInfo.Arguments = arguments;
             cmdDetailed.Start();
