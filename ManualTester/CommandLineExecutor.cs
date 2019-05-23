@@ -36,34 +36,6 @@ namespace WindowsFormsApp1
             return output;
         }
 
-        public static string ExecuteCommandGetOutputFromFile(string command, string outputFileName)
-        {
-            string filePath = Settings.GetExecutedDirectoryPath() + "/" + outputFileName + ".txt";
-            string filePathCopy = filePath + ".copy.txt";
-
-            DeleteFileIfExists(filePath);
-            DeleteFileIfExists(filePathCopy);
-
-            command += " > " + filePath;
-            ExecuteCommand(command);
-
-            SpinWait.SpinUntil(() => File.Exists(filePath), 7000);
-
-            if (!File.Exists(filePath))
-            {
-                throw new IOException("File: " + filePath + " that should be created by command " + command + "does not exist");
-            }
-            else
-            {
-                File.Copy(filePath, filePathCopy, true);
-
-                StreamReader file = new StreamReader(filePathCopy);
-                string output = file.ReadToEnd();
-                file.Close();
-                return output;
-            }
-        }
-
         public static void ExecuteBat(string batName, string arguments)
         {
             Process cmdDetailed = new Process();
@@ -72,6 +44,32 @@ namespace WindowsFormsApp1
             if (arguments.Length > 0)
                 cmdDetailed.StartInfo.Arguments = arguments;
             cmdDetailed.Start();
+        }
+
+        public static string ExecuteBatGetOutput(string batName, string arguments, string outputFileName)
+        {
+            string filePath = Settings.GetExecutedDirectoryPath() + @"\" + outputFileName;
+            string filePathCopy = filePath + ".copy.txt";
+            string output = "" ;
+            DeleteFileIfExists(filePath);
+            DeleteFileIfExists(filePathCopy);
+            ExecuteBat(batName, arguments);
+            SpinWait.SpinUntil(() => File.Exists(filePath), 7000);
+
+            if (!File.Exists(filePath))
+            {
+                throw new IOException("File: " + filePath + " that should be created by bat " + batName + "does not exist");
+            }
+
+            while (output == "")
+            {
+                File.Copy(filePath, filePathCopy, true);
+                StreamReader file = new StreamReader(filePathCopy);
+                output = file.ReadToEnd();
+                file.Close();
+            }
+
+            return output;
         }
 
         #region Helpers

@@ -8,7 +8,6 @@ namespace WindowsFormsApp1
 {
     class ADBWrapper : IDeviceModel, ILogcatOperator
     {
-
         #region InputsAndActions
         public void InputBack()
         {
@@ -21,11 +20,11 @@ namespace WindowsFormsApp1
             CommandLineExecutor.ExecuteCommand(command);
         }
 
-        public bool LaunchApp(string packageName)
+        public bool LaunchApp(string packageName, Device device)
         {
             TestDatabase database = TestDatabase.Instance;
-            string command = "adb shell am start -n " + packageName + "/" + database.GetMainActivityName(packageName);
-            string launchAppResult = CommandLineExecutor.ExecuteCommandGetOutputFromFile(command, "launchAppResult");
+            string arguments = device.serial + " " + packageName;
+            string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput("launchApp.bat", arguments, "launchAppResult");
 
             if (launchAppResult.Contains("Error") || launchAppResult.Contains("error") || launchAppResult.Contains("Exception") || launchAppResult.Contains("exception"))
                 return false;
@@ -94,7 +93,7 @@ namespace WindowsFormsApp1
         {
             string command = "adb -s " + device.serial + " shell wm size";
 
-            string output = CommandLineExecutor.ExecuteCommandGetOutputFromFile(command, "resolution");
+            string output = CommandLineExecutor.ExecuteBatGetOutput("getDevicesResolution", device.serial, "resolution.txt");
             MatchCollection Matches = Regex.Matches(output, @"(\d+)");
             if (Matches.Count == 2)      // Correct case - two values was found (Height and Width)
             {

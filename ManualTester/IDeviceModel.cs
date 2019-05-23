@@ -8,7 +8,8 @@ namespace WindowsFormsApp1
 {
     public interface IDeviceModel
     {
-        bool LaunchApp(string packageName);
+
+        bool LaunchApp(string packageName, Device device);
 
         void InputTap(int x, int y);
 
