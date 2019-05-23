@@ -33,7 +33,6 @@ namespace WindowsFormsApp1
         public bool forceTest = false;          // If set to true, launch test despite the fact DeviceModel "failed to launch app". Used with assumption that end user launched the app manually.
 
         private string packagename;
-        private string processPID;
         private Device device;
         private Logcat logcat = new Logcat();
 
@@ -51,7 +50,6 @@ namespace WindowsFormsApp1
         public void CreateTest(List<TestStep> testStepPlan, Device givenDevice)
         {
             device = givenDevice;
-            processPID = device.deviceModel.GetProcessPID(packagename);
             ExecuteTestSteps(testStepPlan);        
         }
 
@@ -61,7 +59,7 @@ namespace WindowsFormsApp1
             int logcatOffset = 0;
 
             //begin adb logcat
-            logcat = device.logcatOperator.BeginLogcat(processPID, packagename);
+            logcat = device.logcatOperator.BeginLogcat(packagename);
 
             //now execute every step
             int testStepIndex = 0;

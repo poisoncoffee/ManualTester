@@ -18,8 +18,6 @@ namespace WindowsFormsApp1
 
         bool IsAppInstalled(string packageName);
 
-        string GetProcessPID(string packageName);
-
         List<Device> GetConnectedDevices();
 
         List<Device> GetReadyDevicesFullInfo();

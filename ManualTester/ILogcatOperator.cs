@@ -8,7 +8,7 @@ namespace WindowsFormsApp1
 {
     public interface ILogcatOperator
     {
-        Logcat BeginLogcat(string processPID, string packagename);
+        Logcat BeginLogcat(string packagename);
 
         Logcat UpdateLogcat(Logcat logcat, int offset);
 

@@ -1,1 +1,1 @@
-adb logcat --pid=%1 -v time > logcat/detailedlogcat.txt
+adb logcat -v time > logcat/detailedlogcat.txt

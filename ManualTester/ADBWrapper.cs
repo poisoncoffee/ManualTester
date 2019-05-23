@@ -90,19 +90,6 @@ namespace WindowsFormsApp1
             return ReadyDevices;
         }
 
-        public string GetProcessPID(string packageName)
-        {
-            string command = "adb shell pidof -s " + packageName;
-            string processID = CommandLineExecutor.ExecuteCommandGetOutputFromFile(command, "processPID");
-            processID = RemoveNonNumericFromString(processID);
-            if (processID != "")
-            {
-                return processID;
-            }
-
-            throw new TimeoutException("Timeout: Couldn't get process's PID: " + processID + " is not valid or null. App is not installed or couldn't be launched.");
-        }
-
         public Device GetDevicesResolution(Device device)
         {
             string command = "adb -s " + device.serial + " shell wm size";
@@ -163,7 +150,7 @@ namespace WindowsFormsApp1
         // 4. Run new process for brief logcat
         // 5. Return logcat
         //There is a reason .bat is used here. Cmd.exe crashes and stops logging after a few minutes.
-        public Logcat BeginLogcat(string processPID, string packagename)
+        public Logcat BeginLogcat(string packagename)
         {
             //first, clean up the old files
             string briefLogcatPath = "/logcat/brieflLogcat.txt";
@@ -187,7 +174,7 @@ namespace WindowsFormsApp1
             //clear device's logs
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
 
-            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", processPID);
+            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", string.Empty);
             CommandLineExecutor.ExecuteBat("startBriefLogcat.bat", String.Empty);
             logcat.detailedLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
             logcat.briefLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
