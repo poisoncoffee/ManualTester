@@ -19,10 +19,10 @@ namespace WindowsFormsApp1
             CommandLineExecutor.ExecuteCommand(command);
         }
 
-        public bool LaunchApp(string packageName, Device device)
+        public bool LaunchApp(Device device)
         {
             TestDatabase database = TestDatabase.Instance;
-            string arguments = device.serial + " " + packageName;
+            string arguments = device.serial + " " + Settings.appsPackageName;
             string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput("launchApp.bat", arguments, "launchAppResult");
 
             if (launchAppResult.Contains("Error") || launchAppResult.Contains("error") || launchAppResult.Contains("Exception") || launchAppResult.Contains("exception"))
@@ -106,7 +106,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        public bool IsAppInstalled(string packageName)
+        public bool IsAppInstalled() //TODO - should take Device in constructor and check it for specific device
         {
             string command = "adb shell cmd package list packages";
             StreamReader sr = CommandLineExecutor.ExecuteCommandGetOutput(command);
@@ -115,7 +115,7 @@ namespace WindowsFormsApp1
             while (sr.Peek() != -1)
             {
                 tempLine = sr.ReadLine();
-                if (tempLine.Contains(packageName))
+                if (tempLine.Contains(Settings.appsPackageName))
                     return true;
             }
 

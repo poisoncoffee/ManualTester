@@ -8,6 +8,7 @@ namespace WindowsFormsApp1
         static string executedDirectoryPath;
 
         public static string appsPackageName { get; private set; }
+
         public static string sequenceDefinitionsFilePath { get; private set; }
         public static string stepDefinitionsFilePath { get; private set; }
         public static string customScriptsContainerPath { get; private set; }
@@ -25,14 +26,14 @@ namespace WindowsFormsApp1
         public static void SelectApp(string packageName)
         {
             appsPackageName = packageName;
-            SetPathsFor(packageName);
+            SetPathsForCurrentlySelectedApp();
         }
 
-        public static void SetPathsFor(string packageName)
+        public static void SetPathsForCurrentlySelectedApp()
         {
-            sequenceDefinitionsFilePath = executedDirectoryPath + @"\apps\" + packageName + @"\TestSequenceDefinitions.json";
-            stepDefinitionsFilePath = executedDirectoryPath + @"\apps\" + packageName + @"\TestStepDefinitions.json";
-            customScriptsContainerPath = executedDirectoryPath + @"\apps\" + packageName + @"\";
+            sequenceDefinitionsFilePath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\TestSequenceDefinitions.json";
+            stepDefinitionsFilePath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\TestStepDefinitions.json";
+            customScriptsContainerPath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\";
 
             logcatContainerDirectory = executedDirectoryPath + @"\logcat\";
             briefLogcatFilePath = logcatContainerDirectory + @"\briefLogcat.txt";
