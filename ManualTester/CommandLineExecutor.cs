@@ -49,7 +49,7 @@ namespace WindowsFormsApp1
         public static string ExecuteBatGetOutput(string batName, string arguments, string outputFileName)
         {
             string filePath = Settings.GetExecutedDirectoryPath() + @"\" + outputFileName;
-            string filePathCopy = filePath + ".copy.txt";
+            string filePathCopy = Settings.GetPathForCopy(filePath);
             string output = "" ;
             Helpers.DeleteFileIfExists(filePath);
             Helpers.DeleteFileIfExists(filePathCopy);
