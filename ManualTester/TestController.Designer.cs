@@ -62,6 +62,7 @@
             this.comboBoxWithAvailableApps.Name = "comboBoxWithAvailableApps";
             this.comboBoxWithAvailableApps.Size = new System.Drawing.Size(268, 21);
             this.comboBoxWithAvailableApps.TabIndex = 2;
+            this.comboBoxWithAvailableApps.SelectionChangeCommitted += new System.EventHandler(this.comboBoxWithAvailableApps_SelectionChangeCommitted);
             // 
             // connectedDeviceIDLabel
             // 

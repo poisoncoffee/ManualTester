@@ -13,7 +13,6 @@ namespace WindowsFormsApp1
         private List<TestSequence> testSequencesList = new List<TestSequence>();
         private List<TestStep> choosenTestSteps = new List<TestStep>();
         private List<string> consoleOutputBuffer = new List<string>();
-        private string currentProjectsPackagename = "";
         private bool isUpdatingConsoleOutputAllowed = true;
         private Task test;
         private IDeviceModel currentPlatform;
@@ -25,6 +24,7 @@ namespace WindowsFormsApp1
             SetCurrentPlatform();
             RefreshDevices();
             comboBoxWithAvailableApps.DataSource = GetAvailableAppsList();
+            Settings.SelectApp(comboBoxWithAvailableApps.Text);
         }
 
         #region ButtonsActions
@@ -43,11 +43,7 @@ namespace WindowsFormsApp1
 
         private void loadSequencesButton_Click(object sender, EventArgs e)
         {
-            if (comboBoxWithAvailableApps.Text != null)
-            {
-                currentProjectsPackagename = comboBoxWithAvailableApps.Text;
-            }
-            else
+            if (comboBoxWithAvailableApps.Text == null)
             {
                 MessageBox.Show("Please choose the project", "Loading Failed", MessageBoxButtons.OK);
                 return;
@@ -55,8 +51,8 @@ namespace WindowsFormsApp1
 
             //TODO: Do this in separate Initializer class
             TestDatabase database = TestDatabase.Instance;
-            database.LoadTestSequenceDefinitions(currentProjectsPackagename);
-            database.LoadTestStepDefinitions(currentProjectsPackagename);
+            database.LoadTestSequenceDefinitions(Settings.appsPackageName);
+            database.LoadTestStepDefinitions(Settings.appsPackageName);
             List<string> sequenceDefinitionsList = database.GetSequenceDefinitionsAsString();
             sequenceDefinitionsListBox.Items.Clear();
 
@@ -156,6 +152,11 @@ namespace WindowsFormsApp1
                 consoleOutputBuffer.Clear();
             }
         }
+
+        private void comboBoxWithAvailableApps_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            Settings.SelectApp(comboBoxWithAvailableApps.Text);
+        }
         #endregion
 
         #region ActionsDefinitions
@@ -202,7 +203,6 @@ namespace WindowsFormsApp1
         private void SetCurrentPlatform()
         {
             currentPlatform = new ADBWrapper();
-
         }
 
         private void UpdateConsoleOutput(string log)
@@ -220,9 +220,8 @@ namespace WindowsFormsApp1
         // 4. Start new Task
         private void StartTest(bool force)
         {
-            string packagename = comboBoxWithAvailableApps.Text;
             TestDatabase database = TestDatabase.Instance;
-            TestLogic testLogic = new TestLogic(packagename);
+            TestLogic testLogic = new TestLogic(Settings.appsPackageName);
             List<Device> ReadyDevices = new List<Device>();
 
             if (choosenSequenceListBox.Items.Count != 0)
@@ -350,6 +349,7 @@ namespace WindowsFormsApp1
                 }
             }
         }
+
 
 
         #endregion

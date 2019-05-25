@@ -43,22 +43,14 @@ namespace WindowsFormsApp1
             Retry
         }
 
-
-        //TODO. Should be reading this from some kind of configuration file.
-        public string GetMainActivityName(string packagename)
-        {
-            return "com.prime31.UnityPlayerNativeActivity";
-        }
-
         public void LoadTestStepDefinitions(string packagename)
         {
             if (stepDefinitions.TestStepDefinitions != null)
                 stepDefinitions.TestStepDefinitions.Clear();
             stepDefinitions.packagename = packagename;
 
-            string testStepDefinitionsFilePath = packagename + "/Definitions/TestStepDefinitions.json";
             string rawJson = "";
-            rawJson = System.IO.File.ReadAllText(testStepDefinitionsFilePath);
+            rawJson = System.IO.File.ReadAllText(Settings.stepDefinitionsFilePath);
             stepDefinitions = JsonConvert.DeserializeObject<StepDefinitions>(rawJson);
         }
 
@@ -68,9 +60,8 @@ namespace WindowsFormsApp1
                 sequenceDefinitions.TestSequenceDefinitions.Clear();
             sequenceDefinitions.packagename = packagename;
 
-            string testStepDefinitionsFilePath = packagename + "/Definitions/TestSequenceDefinitions.json";
             string rawJson = "";
-            rawJson = System.IO.File.ReadAllText(testStepDefinitionsFilePath);
+            rawJson = System.IO.File.ReadAllText(Settings.sequenceDefinitionsFilePath);
             sequenceDefinitions = JsonConvert.DeserializeObject<SequenceDefinitions>(rawJson);
         }
 

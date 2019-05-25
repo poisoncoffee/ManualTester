@@ -125,8 +125,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(ProjectDir)Bats\*" "$(ProjectDir)$(OutDir)" 
-mkdir "$(ProjectDir)logcat"
-xcopy /Y /E "$(ProjectDir)Definitions" "$(ProjectDir)$(OutDir)"</PostBuildEvent>
+    <PostBuildEvent>mkdir "$(ProjectDir)logcat\"
+mkdir "$(ProjectDir)apps\"
+xcopy /Y /E "$(ProjectDir)Definitions" "$(ProjectDir)$(OutDir)apps\"
+mkdir "$(ProjectDir)bats\"
+xcopy /Y "$(ProjectDir)Bats\*" "$(ProjectDir)$(OutDir)bats\" 
+
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
