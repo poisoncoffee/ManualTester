@@ -9,7 +9,7 @@ namespace WindowsFormsApp1
     public interface IDeviceModel
     {
 
-        bool LaunchApp(string packageName, Device device);
+        bool LaunchApp(Device device);
 
         void InputTap(int x, int y);
 
@@ -17,7 +17,7 @@ namespace WindowsFormsApp1
 
         bool IsDeviceReady();
 
-        bool IsAppInstalled(string packageName);
+        bool IsAppInstalled();
 
         List<Device> GetConnectedDevices();
 
