@@ -1,4 +1,7 @@
-﻿namespace WindowsFormsApp1
+﻿using System;
+
+
+namespace WindowsFormsApp1
 {
     public static class Settings
     {
@@ -10,6 +13,8 @@
         public static string customScriptsContainerPath { get; private set; }
 
         public static string logcatContainerDirectory { get; private set; }
+        public static string briefLogcatFilePath { get; private set; }
+        public static string detailedLogcatFilePath { get; private set; }
 
         public static void InitializeSettings()
         {
@@ -28,11 +33,21 @@
             sequenceDefinitionsFilePath = executedDirectoryPath + @"\apps\" + packageName + @"\TestSequenceDefinitions.json";
             stepDefinitionsFilePath = executedDirectoryPath + @"\apps\" + packageName + @"\TestStepDefinitions.json";
             customScriptsContainerPath = executedDirectoryPath + @"\apps\" + packageName + @"\";
+
+            logcatContainerDirectory = executedDirectoryPath + @"\logcat\";
+            briefLogcatFilePath = logcatContainerDirectory + @"\briefLogcat.txt";
+            detailedLogcatFilePath = logcatContainerDirectory + @"\detailedLogcat.txt";
         }
 
         public static string GetExecutedDirectoryPath()
         {
             return executedDirectoryPath;
+        }
+
+        public static string GetPathForCopy(string sourcePath)
+        {
+            string path = sourcePath + "." + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            return path;
         }
 
     }

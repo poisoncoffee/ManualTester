@@ -51,8 +51,8 @@ namespace WindowsFormsApp1
             string filePath = Settings.GetExecutedDirectoryPath() + @"\" + outputFileName;
             string filePathCopy = filePath + ".copy.txt";
             string output = "" ;
-            DeleteFileIfExists(filePath);
-            DeleteFileIfExists(filePathCopy);
+            Helpers.DeleteFileIfExists(filePath);
+            Helpers.DeleteFileIfExists(filePathCopy);
             ExecuteBat(batName, arguments);
             SpinWait.SpinUntil(() => File.Exists(filePath), 7000);
 
@@ -72,16 +72,5 @@ namespace WindowsFormsApp1
             return output;
         }
 
-        #region Helpers
-
-        private static void DeleteFileIfExists(string filePath)
-        {
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-        }
-
-        #endregion
     }
 }

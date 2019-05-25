@@ -67,6 +67,7 @@
     <Compile Include="ADBWrapper.cs" />
     <Compile Include="CommandLineExecutor.cs" />
     <Compile Include="Device.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="IDeviceModel.cs" />
     <Compile Include="ILogcatOperator.cs" />
     <Compile Include="Logcat.cs" />

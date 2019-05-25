@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace WindowsFormsApp1
 {
@@ -101,7 +100,7 @@ namespace WindowsFormsApp1
                 device.resolutionX = Int32.Parse(Matches[1].Value);
                 return device;
             }
-            else                        // Incorrect case - something went wrong (values are incorrect)
+            else                        // Incorrect case - output is different than expected
             {
                 throw new ArgumentException("Could not get resolution for device " + device.serial + ". ADB output is: " + output);
             }
@@ -152,31 +151,20 @@ namespace WindowsFormsApp1
         public Logcat BeginLogcat(string packagename)
         {
             //first, clean up the old files
-            string briefLogcatPath = "/logcat/brieflLogcat.txt";
-            string detailedLogcatPath = "/logcat/detailedlogcat.txt";
-
-            if (File.Exists(briefLogcatPath))
-            {
-                File.Delete(briefLogcatPath);
-            }
-            if (File.Exists(detailedLogcatPath))
-            {
-                File.Delete(detailedLogcatPath);
-            }
+            Helpers.DeleteFileIfExists(Settings.briefLogcatFilePath);
+            Helpers.DeleteFileIfExists(Settings.detailedLogcatFilePath);
 
             //second, create new ones
             Logcat logcat = new Logcat();
             logcat.logs = new List<string>();
-            string directoryPath = "/logcat/";
-            Directory.CreateDirectory(directoryPath);
+            Directory.CreateDirectory(Settings.logcatContainerDirectory);
 
             //clear device's logs
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
-
-            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", string.Empty);
+            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", String.Empty);
             CommandLineExecutor.ExecuteBat("startBriefLogcat.bat", String.Empty);
-            logcat.detailedLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/detailedLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
-            logcat.briefLogcatPath = Settings.GetExecutedDirectoryPath() + "/logcat/briefLogcat_" + packagename + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + ".txt";
+            logcat.detailedLogcatPath = Settings.GetPathForCopy(Settings.briefLogcatFilePath);
+            logcat.briefLogcatPath = Settings.GetPathForCopy(Settings.detailedLogcatFilePath);
 
             return logcat;
         }
@@ -188,10 +176,8 @@ namespace WindowsFormsApp1
         //4. Return Logcat
         public Logcat UpdateLogcat(Logcat logcat, int offset)
         {
-            string sourceBriefLogcatPath = Settings.GetExecutedDirectoryPath() + @"/logcat/briefLogcat.txt";
-            string sourceDetailedLogcatPath = Settings.GetExecutedDirectoryPath() + @"/logcat/detailedLogcat.txt";
-            File.Copy(sourceBriefLogcatPath, logcat.briefLogcatPath, true);
-            File.Copy(sourceDetailedLogcatPath, logcat.detailedLogcatPath, true);
+            File.Copy(Settings.briefLogcatFilePath, logcat.briefLogcatPath, true);
+            File.Copy(Settings.detailedLogcatFilePath, logcat.detailedLogcatPath, true);
 
             StreamReader file = new StreamReader(logcat.briefLogcatPath);
             int linesToSkip = offset;
@@ -223,8 +209,6 @@ namespace WindowsFormsApp1
         }
         #endregion
 
-        #region Helpers
-
         public static string RemoveNonNumericFromString(string input)
         {
             string output = "";
@@ -238,37 +222,5 @@ namespace WindowsFormsApp1
             return output;
         }
 
-
-        public static void WaitUntil(Func<bool> condition, int frequency, int maxTime)
-        {
-            while (!condition() && maxTime > 0)
-            {
-                Thread.Sleep(frequency);
-                maxTime -= frequency;
-            }
-
-            if (condition())
-                return;
-            else
-                throw new TimeoutException();
-        }
-
-        public readonly System.Threading.EventWaitHandle waitHandle = new System.Threading.AutoResetEvent(false);
-
-        public void SetWaitHandleIf(Func<bool> condition)
-        {
-            while(!condition())
-            {
-                //Nie robi nic ew. Thread.Sleep(time);
-            }
-
-            waitHandle.Set();
-        }
-
-        public void WaitForSignalOrTimeout(int seconds)
-        {
-            waitHandle.WaitOne(seconds);
-        }
-        #endregion
     }
 }

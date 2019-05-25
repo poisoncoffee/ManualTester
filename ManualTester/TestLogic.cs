@@ -186,7 +186,7 @@ namespace WindowsFormsApp1
                     Thread.Sleep(step.waitTime);
                     break;
                 case TestStep.StepType.ExecuteScript:
-                    CommandLineExecutor.ExecuteBat(step.scriptPath, String.Empty);
+                    CommandLineExecutor.ExecuteBat(step.scriptPath, device.serial);
                     break;
                 default:
                     throw new NotImplementedException("Behaviour for this Step Type: " + step.testStepType + " is not defined");
