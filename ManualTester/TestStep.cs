@@ -31,7 +31,7 @@ namespace WindowsFormsApp1
         public double posY = 0;                                                             //Range 0-1 [TODO] Support for 1. Different aspect ratios 2. Safe Area sesnivity
         public double posX = 0;                                                             //Range 0-1 [TODO] Support for 1. Different aspect ratios 2. Safe Area sesnivity
 
-        public string scriptPath;                                                           //Path to script file
+        public string scriptName;                                                           //Name script file (script should be placed in the same directory as other apps Definitions)
 
     }
 }

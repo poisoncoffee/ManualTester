@@ -134,6 +134,18 @@ namespace WindowsFormsApp1
             return false;
         }
 
+        public void ExecuteInShell(string shellCommand)
+        {
+            string command = "adb shell " + shellCommand;
+            CommandLineExecutor.ExecuteCommand(command);
+        }
+
+        public void ExecuteScript(string scriptName)
+        {
+            string scriptPath = Settings.appsDefinitionsDirectoryPath + scriptName;
+            CommandLineExecutor.ExecuteBat(scriptPath, String.Empty);
+        }
+
         #endregion
 
         #region LogcatOperator

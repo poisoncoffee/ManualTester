@@ -9,6 +9,7 @@ namespace WindowsFormsApp1
 
         public static string appsPackageName { get; private set; }
 
+        public static string appsDefinitionsDirectoryPath { get; private set; }
         public static string sequenceDefinitionsFilePath { get; private set; }
         public static string stepDefinitionsFilePath { get; private set; }
         public static string customScriptsContainerPath { get; private set; }
@@ -31,6 +32,7 @@ namespace WindowsFormsApp1
 
         public static void SetPathsForCurrentlySelectedApp()
         {
+            appsDefinitionsDirectoryPath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\";
             sequenceDefinitionsFilePath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\TestSequenceDefinitions.json";
             stepDefinitionsFilePath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\TestStepDefinitions.json";
             customScriptsContainerPath = executedDirectoryPath + @"\apps\" + appsPackageName + @"\";

@@ -19,6 +19,10 @@ namespace WindowsFormsApp1
 
         bool IsAppInstalled();
 
+        void ExecuteInShell(string command);
+
+        void ExecuteScript(string scriptPath);
+
         List<Device> GetConnectedDevices();
 
         List<Device> GetReadyDevicesFullInfo();
