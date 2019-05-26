@@ -12,11 +12,10 @@ This app allows to execute repetitive sequences of actions, which can be used fo
 *looking for errors (blacklisted logs) is a TODO  
 
 **The project still has major TODOs (it's barely MVP):**   
-[ ] Code Review feedback implementation  
+[WIP] Code Review feedback implementation  
 [ ] Blacklisted logs (test fails after specific log appeared, for example an exception)  
-[ ] Support for different screen resolutions (now works only for 1080 x 1920)  
-[ ] Support for different aspect ratios (now works only for 16:9)  
-[ ] Various types of actions (now, only a tap is supported)  
+[✓] Support for different screen resolutions (now works only for 1080 x 1920)  
+[✓] Various types of actions (now, only a tap is supported)  
 [ ] Cancelling tests  
 [ ] Test Step Editor  
 All TODOs are listed on my trello: https://trello.com/invite/b/oEHOagYS/4faaf133e6399e3d030b015f113e2450/manualtester  
