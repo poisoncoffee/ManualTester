@@ -1,0 +1,24 @@
+{"TestSequenceDefinitions": [ 
+{
+	"testSequenceID":"Step Sequence 1",
+	"StepList" : [
+	"step1",
+	"step2"
+	]
+},
+{
+	"testSequenceID":"Step Sequence 2",
+	"StepList" : [
+	"step2",
+	"step1",
+	"step2",
+	"step1",
+	"step1",
+	"step2",
+	"step2",
+	"step1",
+	"step3"
+	]
+}
+]
+}

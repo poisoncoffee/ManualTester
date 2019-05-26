@@ -20,6 +20,18 @@
   "terminationTime": 10000,
   "posY": 100,
   "posX": 100
+},
+{
+  "actionIfSucceeded": "Stop",
+  "actionIfFailed": "Stop",
+  "testStepType": "Tap",
+  "testStepID": "step3",
+  "conditionLog": [],
+  "confirmationLog": [],
+  "terminationTime": 40000,
+  "scriptName":"appUninstall.bat",
+  "posY": 100,
+  "posX": 100
 }
 ]
 }

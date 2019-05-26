@@ -23,7 +23,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
             SetCurrentPlatform();
             RefreshDevices();
-            comboBoxWithAvailableApps.DataSource = GetAvailableAppsList();
+            comboBoxWithAvailableApps.DataSource = Settings.GetAvailableAppsList();
             Settings.SelectApp(comboBoxWithAvailableApps.Text);
         }
 
@@ -155,19 +155,11 @@ namespace WindowsFormsApp1
 
         private void comboBoxWithAvailableApps_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            Settings.SelectApp(comboBoxWithAvailableApps.Text);
+            Settings.SelectApp(comboBoxWithAvailableApps.SelectedItem.ToString());
         }
         #endregion
 
         #region ActionsDefinitions
-
-        //Placeholder, TODO. Currently returns "com.artifexmundi.balefire" as this is the app I test. In the future will search for available apps in some config file.
-        private List<string> GetAvailableAppsList()
-        {
-            List<string> AppList = new List<string>();
-            AppList.Add("com.artifexmundi.balefire");
-            return AppList;            
-        }
 
         private void RefreshDevices()
         {

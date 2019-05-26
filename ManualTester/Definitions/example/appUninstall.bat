@@ -1,0 +1,1 @@
+adb uninstall example.package.name

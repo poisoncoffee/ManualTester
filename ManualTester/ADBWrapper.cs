@@ -142,7 +142,7 @@ namespace WindowsFormsApp1
 
         public void ExecuteScript(string scriptName)
         {
-            string scriptPath = Settings.appsDefinitionsDirectoryPath + scriptName;
+            string scriptPath = Settings.appsDefinitionsContainerPath + scriptName;
             CommandLineExecutor.ExecuteBat(scriptPath, String.Empty);
         }
 
