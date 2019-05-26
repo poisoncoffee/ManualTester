@@ -242,8 +242,6 @@ namespace WindowsFormsApp1
             //subscribe to all events
             testLogic.TestEnded += OnTestEnded;
             testLogic.StepSucceeded += OnStepSucceeded;
-            testLogic.DeviceNotConnected += OnDeviceNotConnected;
-            testLogic.AppLaunchFailed += OnAppLaunchFailed;
             testLogic.LogRead += OnLogRead;
 
             //force set to true launches test despite fact that app could not be opened via adb - assumes the user launched the app manually. See OnAppLaunchFailed event

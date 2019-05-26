@@ -234,22 +234,6 @@ namespace WindowsFormsApp1
                 TestEnded(this, new TestResultEventArgs() { resultType = result });
         }
 
-        public delegate void DeviceNotConnectedEventHandler(object sender, TestEventArgs e);
-        public event DeviceNotConnectedEventHandler DeviceNotConnected;
-        protected virtual void OnDeviceNotConnected(string packagename)
-        {
-            if(DeviceNotConnected != null)
-                DeviceNotConnected(this, new TestEventArgs() { argument = packagename });
-        }
-
-        public delegate void AppLaunchFailedEventHandler(object sender, TestEventArgs e);
-        public event AppLaunchFailedEventHandler AppLaunchFailed;
-        protected virtual void OnAppLaunchFailed(string packagename)
-        {
-            if(AppLaunchFailed != null)
-                AppLaunchFailed(this, new TestEventArgs() { argument = packagename });
-        }
-
         public delegate void LogReadEventHandler(object sender, TestEventArgs e);
         public event LogReadEventHandler LogRead;
         protected virtual void OnLogRead(string log)
