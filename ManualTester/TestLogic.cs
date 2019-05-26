@@ -50,7 +50,8 @@ namespace WindowsFormsApp1
         public void CreateTest(List<TestStep> testStepPlan, Device givenDevice)
         {
             device = givenDevice;
-            ExecuteTestSteps(testStepPlan);        
+            ExecuteTestSteps(testStepPlan);
+            OnTestEnded(TestResultEventArgs.ResultType.Success);
         }
 
 
@@ -85,6 +86,8 @@ namespace WindowsFormsApp1
                         if (!isConditionPresent)
                         {
                             isConditionPresent = IsTargetPresent(logcat.logs[logcatOffset], currentStep.conditionLog);
+                            if (isConditionPresent)
+                                Thread.Sleep(currentStep.waitTime);
                         }
 
                         if (isConditionPresent && !isConfirmationPresent)
@@ -187,6 +190,9 @@ namespace WindowsFormsApp1
                     break;
                 case TestStep.StepType.ExecuteScript:
                     device.deviceModel.ExecuteScript(step.scriptName);
+                    break;
+                case TestStep.StepType.Back:
+                    device.deviceModel.InputBack();
                     break;
                 default:
                     throw new NotImplementedException("Behaviour for this Step Type: " + step.testStepType + " is not defined");

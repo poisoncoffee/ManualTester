@@ -36,14 +36,16 @@ namespace WindowsFormsApp1
             return output;
         }
 
-        public static void ExecuteBat(string batName, string arguments)
+        public static void ExecuteBat(string batName, string arguments, string workingDirectory)
         {
-            Process cmdDetailed = new Process();
-            cmdDetailed.StartInfo.UseShellExecute = true;
-            cmdDetailed.StartInfo.FileName = batName;
+            Process cmd = new Process();
+            cmd.StartInfo.UseShellExecute = true;
+            cmd.StartInfo.FileName = batName;
+            if (workingDirectory.Length > 0)
+                cmd.StartInfo.WorkingDirectory = workingDirectory;
             if (arguments.Length > 0)
-                cmdDetailed.StartInfo.Arguments = arguments;
-            cmdDetailed.Start();
+                cmd.StartInfo.Arguments = arguments;
+            cmd.Start();
         }
 
         public static string ExecuteBatGetOutput(string batName, string arguments, string outputFileName)
@@ -53,7 +55,7 @@ namespace WindowsFormsApp1
             string output = "" ;
             Helpers.DeleteFileIfExists(filePath);
             Helpers.DeleteFileIfExists(filePathCopy);
-            ExecuteBat(batName, arguments);
+            ExecuteBat(batName, arguments, string.Empty);
             SpinWait.SpinUntil(() => File.Exists(filePath), 7000);
 
             if (!File.Exists(filePath))

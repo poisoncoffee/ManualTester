@@ -143,7 +143,7 @@ namespace WindowsFormsApp1
         public void ExecuteScript(string scriptName)
         {
             string scriptPath = Settings.appsDefinitionsContainerPath + scriptName;
-            CommandLineExecutor.ExecuteBat(scriptPath, String.Empty);
+            CommandLineExecutor.ExecuteBat(scriptName, string.Empty, Settings.appsDefinitionsContainerPath);
         }
 
         #endregion
@@ -173,8 +173,8 @@ namespace WindowsFormsApp1
 
             //clear device's logs
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
-            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", String.Empty);
-            CommandLineExecutor.ExecuteBat("startBriefLogcat.bat", String.Empty);
+            CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", String.Empty, String.Empty);
+            CommandLineExecutor.ExecuteBat("startBriefLogcat.bat", String.Empty, String.Empty);
             logcat.detailedLogcatPath = Settings.GetPathForCopy(Settings.briefLogcatFilePath);
             logcat.briefLogcatPath = Settings.GetPathForCopy(Settings.detailedLogcatFilePath);
 
