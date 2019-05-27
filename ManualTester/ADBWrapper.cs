@@ -23,9 +23,9 @@ namespace WindowsFormsApp1
         {
             TestDatabase database = TestDatabase.Instance;
             string arguments = device.serial + " " + Settings.appsPackageName;
-            string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput("launchApp.bat", arguments, "launchAppResult");
+            string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput("launchApp.bat", arguments, "launchAppResult").ToLower() ;
 
-            if (launchAppResult.Contains("Error") || launchAppResult.Contains("error") || launchAppResult.Contains("Exception") || launchAppResult.Contains("exception"))
+            if (launchAppResult.Contains("error") || launchAppResult.Contains("exception"))
                 return false;
             else
                 return true;
@@ -156,10 +156,10 @@ namespace WindowsFormsApp1
         //The logic is:
         // 1. Check if files exist - if yes, delete them (they may be the result of the previous run)
         // 2. Clear device's logcat
-        // 3. Run new process for detailed logcat
-        // 4. Run new process for brief logcat
+        // 3. Run new process for both logcats 
+        // 4. Set the path to which logcats will be copied and read
         // 5. Return logcat
-        //There is a reason .bat is used here. Cmd.exe crashes and stops logging after a few minutes.
+        //There is a reason .bat is used here. Cmd.exe crashes and stops logging after a few minutes for unknown reasons.
         public Logcat BeginLogcat(string packagename)
         {
             //first, clean up the old files
@@ -173,8 +173,11 @@ namespace WindowsFormsApp1
 
             //clear device's logs
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
+
+            //run .bats that will start logcat
             CommandLineExecutor.ExecuteBat("startDetailedLogcat.bat", String.Empty, String.Empty);
             CommandLineExecutor.ExecuteBat("startBriefLogcat.bat", String.Empty, String.Empty);
+
             logcat.detailedLogcatPath = Settings.GetPathForCopy(Settings.briefLogcatFilePath);
             logcat.briefLogcatPath = Settings.GetPathForCopy(Settings.detailedLogcatFilePath);
 
@@ -182,12 +185,16 @@ namespace WindowsFormsApp1
         }
 
         //The logic is:
-        //1. Make copy from the "source" logcat (for both logcats)
-        //2. Just ReadLine(); through logs  until it reaches offset
+        //1. For both logcats: Make copy from the "source" logcat.
+        //2. For detailedLogcat: nothing else needs to be done. This program does not use it (it's kept here only for end-users: they may need full logs if the test fails).
+        //3. For briefLogcat: Just ReadLine(); through logs until it reaches offset
         //3. Read logs after the offset and place them into Logcat struct
         //4. Return Logcat
         public Logcat UpdateLogcat(Logcat logcat, int offset)
         {
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException("Trying to update Logcat with incorrect offset: " + offset);
+
             File.Copy(Settings.briefLogcatFilePath, logcat.briefLogcatPath, true);
             File.Copy(Settings.detailedLogcatFilePath, logcat.detailedLogcatPath, true);
 
@@ -209,7 +216,6 @@ namespace WindowsFormsApp1
                 logcat.logs[offset] = file.ReadLine();
                 offset++;
             }
-
             file.Close();
             return logcat;
         }
@@ -217,22 +223,9 @@ namespace WindowsFormsApp1
         //TODO
         public void EndLogcat(Logcat logcat)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Ending Logcat is not implemented yet.");
         }
         #endregion
-
-        public static string RemoveNonNumericFromString(string input)
-        {
-            string output = "";
-            foreach (char c in input)
-            {
-                if (char.IsNumber(c))
-                {
-                    output += c;
-                }
-            }
-            return output;
-        }
 
     }
 }
