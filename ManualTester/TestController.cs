@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Threading;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -51,8 +50,8 @@ namespace WindowsFormsApp1
 
             //TODO: Do this in separate Initializer class
             TestDatabase database = TestDatabase.Instance;
-            database.LoadTestSequenceDefinitions(Settings.appsPackageName);
-            database.LoadTestStepDefinitions(Settings.appsPackageName);
+            database.LoadTestSequenceDefinitions();
+            database.LoadTestStepDefinitions();
             List<string> sequenceDefinitionsList = database.GetSequenceDefinitionsAsString();
             sequenceDefinitionsListBox.Items.Clear();
 

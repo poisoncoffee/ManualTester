@@ -4,7 +4,6 @@ namespace WindowsFormsApp1
 {
     public interface IDeviceModel
     {
-
         //TODO: Support for executing on particular device (for multiple devices)
 
         bool LaunchApp(Device device);

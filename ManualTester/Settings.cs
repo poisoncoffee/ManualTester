@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 
-
 namespace WindowsFormsApp1
 {
     public static class Settings

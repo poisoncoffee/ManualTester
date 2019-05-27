@@ -1,9 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
@@ -43,22 +39,20 @@ namespace WindowsFormsApp1
             Retry
         }
 
-        public void LoadTestStepDefinitions(string packagename)
+        public void LoadTestStepDefinitions()
         {
             if (stepDefinitions.TestStepDefinitions != null)
                 stepDefinitions.TestStepDefinitions.Clear();
-            stepDefinitions.packagename = packagename;
 
             string rawJson = "";
             rawJson = System.IO.File.ReadAllText(Settings.stepDefinitionsFilePath);
             stepDefinitions = JsonConvert.DeserializeObject<StepDefinitions>(rawJson);
         }
 
-        public void LoadTestSequenceDefinitions(string packagename)
+        public void LoadTestSequenceDefinitions()
         {
             if(sequenceDefinitions.TestSequenceDefinitions != null)
                 sequenceDefinitions.TestSequenceDefinitions.Clear();
-            sequenceDefinitions.packagename = packagename;
 
             string rawJson = "";
             rawJson = System.IO.File.ReadAllText(Settings.sequenceDefinitionsFilePath);
