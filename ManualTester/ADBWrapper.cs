@@ -23,7 +23,11 @@ namespace WindowsFormsApp1
         {
             TestDatabase database = TestDatabase.Instance;
             string arguments = device.serial + " " + Settings.appsPackageName;
-            string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput(ADBWrapperSettings.appLaunchBatFileName, arguments, ADBWrapperSettings.GetFileNameForResult(ADBWrapperSettings.appLaunchBatFileName)).ToLower() ;
+            string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput(ADBWrapperSettings.GetFunctionsFilePath(
+                ADBWrapperSettings.EBatFunction.getResolution), 
+                arguments, 
+                ADBWrapperSettings.GetFilePathForOutput(ADBWrapperSettings.EBatFunction.appLaunch, device)
+                ).ToLower() ;
 
             if (launchAppResult.Contains("error") || launchAppResult.Contains("exception"))
                 return false;
@@ -92,7 +96,8 @@ namespace WindowsFormsApp1
         {
             string command = "adb -s " + device.serial + " shell wm size";
 
-            string output = CommandLineExecutor.ExecuteBatGetOutput(ADBWrapperSettings.getDevicesResolutionFileName, device.serial, ADBWrapperSettings.GetFileNameForResult(ADBWrapperSettings.getDevicesResolutionFileName));
+            string arguments = device.serial + " " + ADBWrapperSettings.GetFilePathForOutput(ADBWrapperSettings.EBatFunction.getResolution, device);
+            string output = CommandLineExecutor.ExecuteBatGetOutput(ADBWrapperSettings.GetFunctionsFilePath(ADBWrapperSettings.EBatFunction.getResolution), arguments, ADBWrapperSettings.GetFilePathForOutput(ADBWrapperSettings.EBatFunction.getResolution, device));
             MatchCollection Matches = Regex.Matches(output, @"(\d+)");
             if (Matches.Count == 2)      // Correct case - two values was found (Height and Width)
             {
@@ -175,8 +180,8 @@ namespace WindowsFormsApp1
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
 
             //run .bats that will start logcat
-            CommandLineExecutor.ExecuteBat(ADBWrapperSettings.startDetailedLogcatFileName, String.Empty, String.Empty);
-            CommandLineExecutor.ExecuteBat(ADBWrapperSettings.startBriefLogcatFileName, String.Empty, String.Empty);
+            CommandLineExecutor.ExecuteBat(ADBWrapperSettings.GetFunctionsFilePath(ADBWrapperSettings.EBatFunction.startBriefLogcat), String.Empty, String.Empty);
+            CommandLineExecutor.ExecuteBat(ADBWrapperSettings.GetFunctionsFilePath(ADBWrapperSettings.EBatFunction.startDetailedLogcat), String.Empty, String.Empty);
 
             logcat.detailedLogcatPath = Settings.GetPathForCopy(Settings.briefLogcatFilePath);
             logcat.briefLogcatPath = Settings.GetPathForCopy(Settings.detailedLogcatFilePath);

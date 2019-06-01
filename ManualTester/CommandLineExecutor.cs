@@ -48,25 +48,24 @@ namespace WindowsFormsApp1
             cmd.Start();
         }
 
-        public static string ExecuteBatGetOutput(string batName, string arguments, string outputFileName)
+        public static string ExecuteBatGetOutput(string batPath, string arguments, string outputPath)
         {
-            string filePath = Settings.GetExecutedDirectoryPath() + @"\" + outputFileName;
-            string filePathCopy = Settings.GetPathForCopy(filePath);
+            string outputCopyPath = Settings.GetPathForCopy(outputPath);
             string output = "" ;
-            Helpers.DeleteFileIfExists(filePath);
-            Helpers.DeleteFileIfExists(filePathCopy);
-            ExecuteBat(batName, arguments, string.Empty);
-            SpinWait.SpinUntil(() => File.Exists(filePath), 7000);
+            Helpers.DeleteFileIfExists(outputPath);
+            Helpers.DeleteFileIfExists(outputCopyPath);
+            ExecuteBat(batPath, arguments, string.Empty);
+            SpinWait.SpinUntil(() => File.Exists(outputPath), 7000);
 
-            if (!File.Exists(filePath))
+            if (!File.Exists(outputPath))
             {
-                throw new IOException("File: " + filePath + " that should be created by bat " + batName + "does not exist");
+                throw new IOException("File: " + outputPath + " that should be created by bat " + batPath + "does not exist");
             }
 
             while (output == "")
             {
-                File.Copy(filePath, filePathCopy, true);
-                StreamReader file = new StreamReader(filePathCopy);
+                File.Copy(outputPath, outputCopyPath, true);
+                StreamReader file = new StreamReader(outputCopyPath);
                 output = file.ReadToEnd();
                 file.Close();
             }
