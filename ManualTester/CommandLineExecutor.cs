@@ -36,11 +36,11 @@ namespace WindowsFormsApp1
             return output;
         }
 
-        public static void ExecuteBat(string batName, string arguments, string workingDirectory)
+        public static void ExecuteScript(string scriptName, string arguments, string workingDirectory)
         {
             Process cmd = new Process();
             cmd.StartInfo.UseShellExecute = true;
-            cmd.StartInfo.FileName = batName;
+            cmd.StartInfo.FileName = scriptName;
             if (workingDirectory.Length > 0)
                 cmd.StartInfo.WorkingDirectory = workingDirectory;
             if (arguments.Length > 0)
@@ -48,18 +48,18 @@ namespace WindowsFormsApp1
             cmd.Start();
         }
 
-        public static string ExecuteBatGetOutput(string batPath, string arguments, string outputPath)
+        public static string ExecuteScriptGetOutput(string scriptPath, string arguments, string outputPath)
         {
             string outputCopyPath = Settings.GetPathForCopy(outputPath);
             string output = "" ;
             Helpers.DeleteFileIfExists(outputPath);
             Helpers.DeleteFileIfExists(outputCopyPath);
-            ExecuteBat(batPath, arguments, string.Empty);
+            ExecuteScript(scriptPath, arguments, string.Empty);
             SpinWait.SpinUntil(() => File.Exists(outputPath), 7000);
 
             if (!File.Exists(outputPath))
             {
-                throw new IOException("File: " + outputPath + " that should be created by bat " + batPath + "does not exist");
+                throw new IOException("File: " + outputPath + " that should be created by script " + scriptPath + "does not exist");
             }
 
             while (output == "")

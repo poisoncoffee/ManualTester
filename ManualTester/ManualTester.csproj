@@ -65,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ADBWrapper.cs" />
-    <Compile Include="ADBWrapperSettings.cs" />
+    <Compile Include="ADBScriptedFunctionsSettings.cs" />
     <Compile Include="CommandLineExecutor.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="Helpers.cs" />

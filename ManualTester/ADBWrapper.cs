@@ -23,10 +23,10 @@ namespace WindowsFormsApp1
         {
             TestDatabase database = TestDatabase.Instance;
             string arguments = device.serial + " " + Settings.appsPackageName;
-            string launchAppResult = CommandLineExecutor.ExecuteBatGetOutput(ADBWrapperSettings.GetFunctionsFilePath(
-                ADBWrapperSettings.EBatFunction.getResolution), 
+            string launchAppResult = CommandLineExecutor.ExecuteScriptGetOutput(ADBScriptedFunctionsSettings.GetFunctionsFilePath(
+                ADBScriptedFunctionsSettings.EScriptedFunction.getResolution), 
                 arguments, 
-                ADBWrapperSettings.GetFilePathForOutput(ADBWrapperSettings.EBatFunction.appLaunch, device)
+                ADBScriptedFunctionsSettings.GetFilePathForOutput(ADBScriptedFunctionsSettings.EScriptedFunction.appLaunch, device)
                 ).ToLower() ;
 
             if (launchAppResult.Contains("error") || launchAppResult.Contains("exception"))
@@ -96,8 +96,8 @@ namespace WindowsFormsApp1
         {
             string command = "adb -s " + device.serial + " shell wm size";
 
-            string arguments = device.serial + " " + ADBWrapperSettings.GetFilePathForOutput(ADBWrapperSettings.EBatFunction.getResolution, device);
-            string output = CommandLineExecutor.ExecuteBatGetOutput(ADBWrapperSettings.GetFunctionsFilePath(ADBWrapperSettings.EBatFunction.getResolution), arguments, ADBWrapperSettings.GetFilePathForOutput(ADBWrapperSettings.EBatFunction.getResolution, device));
+            string arguments = device.serial + " " + ADBScriptedFunctionsSettings.GetFilePathForOutput(ADBScriptedFunctionsSettings.EScriptedFunction.getResolution, device);
+            string output = CommandLineExecutor.ExecuteScriptGetOutput(ADBScriptedFunctionsSettings.GetFunctionsFilePath(ADBScriptedFunctionsSettings.EScriptedFunction.getResolution), arguments, ADBScriptedFunctionsSettings.GetFilePathForOutput(ADBScriptedFunctionsSettings.EScriptedFunction.getResolution, device));
             MatchCollection Matches = Regex.Matches(output, @"(\d+)");
             if (Matches.Count == 2)      // Correct case - two values was found (Height and Width)
             {
@@ -148,7 +148,7 @@ namespace WindowsFormsApp1
         public void ExecuteScript(string scriptName)
         {
             string scriptPath = Settings.appsDefinitionsContainerPath + scriptName;
-            CommandLineExecutor.ExecuteBat(scriptName, string.Empty, Settings.appsDefinitionsContainerPath);
+            CommandLineExecutor.ExecuteScript(scriptName, string.Empty, Settings.appsDefinitionsContainerPath);
         }
 
         #endregion
@@ -180,8 +180,8 @@ namespace WindowsFormsApp1
             CommandLineExecutor.ExecuteCommand("adb logcat -c");
 
             //run .bats that will start logcat
-            CommandLineExecutor.ExecuteBat(ADBWrapperSettings.GetFunctionsFilePath(ADBWrapperSettings.EBatFunction.startBriefLogcat), String.Empty, String.Empty);
-            CommandLineExecutor.ExecuteBat(ADBWrapperSettings.GetFunctionsFilePath(ADBWrapperSettings.EBatFunction.startDetailedLogcat), String.Empty, String.Empty);
+            CommandLineExecutor.ExecuteScript(ADBScriptedFunctionsSettings.GetFunctionsFilePath(ADBScriptedFunctionsSettings.EScriptedFunction.startBriefLogcat), String.Empty, String.Empty);
+            CommandLineExecutor.ExecuteScript(ADBScriptedFunctionsSettings.GetFunctionsFilePath(ADBScriptedFunctionsSettings.EScriptedFunction.startDetailedLogcat), String.Empty, String.Empty);
 
             logcat.detailedLogcatPath = Settings.GetPathForCopy(Settings.briefLogcatFilePath);
             logcat.briefLogcatPath = Settings.GetPathForCopy(Settings.detailedLogcatFilePath);
