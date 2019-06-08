@@ -9,21 +9,25 @@ namespace WindowsFormsApp1
 {
     public partial class TestController : Form
     {
+
+        private TestModel testModel;
+
         private List<TestSequence> testSequencesList = new List<TestSequence>();
         private List<TestStep> choosenTestSteps = new List<TestStep>();
         private List<string> consoleOutputBuffer = new List<string>();
         private bool isUpdatingConsoleOutputAllowed = true;
         private Task test;
-        private IDeviceModel currentPlatform;
+
 
 
         public TestController()
         {
             InitializeComponent();
-            SetCurrentPlatform();
-            RefreshDevices();
-            comboBoxWithAvailableApps.DataSource = Settings.GetAvailableAppsList();
-            Settings.SelectApp(comboBoxWithAvailableApps.Text);
+            testModel = new TestModel();
+            testModel.SetCurrentPlatform();
+            RefreshDevicesView();
+            availableApps.DataSource = Settings.GetAvailableAppsList();
+            Settings.SelectApp(availableApps.Text);
         }
 
         #region ButtonsActions
@@ -37,27 +41,26 @@ namespace WindowsFormsApp1
 
         private void connectedDeviceRefreshButton_Click(object sender, EventArgs e)
         {
-            RefreshDevices();
+            RefreshDevicesView();
         }
 
         private void loadSequencesButton_Click(object sender, EventArgs e)
         {
-            if (comboBoxWithAvailableApps.Text == null)
+            if (!testModel.InitializeDefinitions())
             {
                 MessageBox.Show("Please choose the project", "Loading Failed", MessageBoxButtons.OK);
                 return;
             }
 
-            //TODO: Do this in separate Initializer class
-            TestDatabase database = TestDatabase.Instance;
-            database.LoadTestSequenceDefinitions();
-            database.LoadTestStepDefinitions();
-            List<string> sequenceDefinitionsList = database.GetSequenceDefinitionsAsString();
-            sequenceDefinitionsListBox.Items.Clear();
+            DisplayDefinitions(TestDatabase.GetSequenceDefinitionsAsString());  
 
-            foreach(string tsqname in sequenceDefinitionsList)
+        }
+
+        private void DisplayDefinitions(List<string> sequenceDefinitions)
+        {
+            foreach (string tsqname in sequenceDefinitions)
             {
-                sequenceDefinitionsListBox.Items.Add(tsqname);
+                loadedSequences.Items.Add(tsqname);
             }
 
         }
@@ -65,43 +68,43 @@ namespace WindowsFormsApp1
         private void choosenPlatformAndroid_CheckedChanged(object sender, EventArgs e)
         {
             MessageBox.Show("No platform other than Android is supported", "No choice", MessageBoxButtons.OK);
-            choosenPlatformAndroid.Checked = true;
+            chosenPlatformAndroid.Checked = true;
         }
 
         private void addSequence_Click(object sender, EventArgs e)
         {
-            if (sequenceDefinitionsListBox.SelectedItem != null)
+            if (loadedSequences.SelectedItem != null)
             {
-                choosenSequenceListBox.Items.Add(sequenceDefinitionsListBox.SelectedItem);
+                chosenSequences.Items.Add(loadedSequences.SelectedItem);
             }
         }
 
         private void removeSequence_Click(object sender, EventArgs e)
         {
-            if (choosenSequenceListBox.SelectedItem != null)
+            if (chosenSequences.SelectedItem != null)
             {
-                choosenSequenceListBox.Items.Remove(choosenSequenceListBox.SelectedItem);
+                chosenSequences.Items.Remove(chosenSequences.SelectedItem);
             }
 
         }
 
         private void moveSequenceUp_Click(object sender, EventArgs e)
         {
-            if (choosenSequenceListBox.SelectedItem != null)
+            if (chosenSequences.SelectedItem != null)
             {
 
-                if (choosenSequenceListBox.SelectedIndex != 0)
+                if (chosenSequences.SelectedIndex != 0)
                 {
-                    int i = choosenSequenceListBox.SelectedIndex;
+                    int i = chosenSequences.SelectedIndex;
 
                     // 1. copying item to another variable
                     // 2. overwriting it with item on higher position
                     // 3. overwriting item on higher position with variable
-                    var selectedItem = choosenSequenceListBox.Items[i];
-                    choosenSequenceListBox.Items[i] = choosenSequenceListBox.Items[i - 1];
-                    choosenSequenceListBox.Items[i - 1] = selectedItem;
+                    var selectedItem = chosenSequences.Items[i];
+                    chosenSequences.Items[i] = chosenSequences.Items[i - 1];
+                    chosenSequences.Items[i - 1] = selectedItem;
 
-                    choosenSequenceListBox.SetSelected(i - 1, true);
+                    chosenSequences.SetSelected(i - 1, true);
                 }
 
             }
@@ -110,21 +113,21 @@ namespace WindowsFormsApp1
 
         private void moveSequenceDown_Click(object sender, EventArgs e)
         {
-            if (choosenSequenceListBox.SelectedItem != null)
+            if (chosenSequences.SelectedItem != null)
             {
 
-                if (choosenSequenceListBox.SelectedIndex != choosenSequenceListBox.Items.Count - 1)
+                if (chosenSequences.SelectedIndex != chosenSequences.Items.Count - 1)
                 {
-                    int i = choosenSequenceListBox.SelectedIndex;
+                    int i = chosenSequences.SelectedIndex;
 
                     // 1. copying item to another variable
                     // 2. overwriting it with item on lower position
                     // 3. overwriting item on lower position with variable
-                    var selectedItem = choosenSequenceListBox.Items[i];
-                    choosenSequenceListBox.Items[i] = choosenSequenceListBox.Items[i + 1];
-                    choosenSequenceListBox.Items[i + 1] = selectedItem;
+                    var selectedItem = chosenSequences.Items[i];
+                    chosenSequences.Items[i] = chosenSequences.Items[i + 1];
+                    chosenSequences.Items[i + 1] = selectedItem;
 
-                    choosenSequenceListBox.SetSelected(i + 1, true);
+                    chosenSequences.SetSelected(i + 1, true);
                 }
 
             }
@@ -154,32 +157,31 @@ namespace WindowsFormsApp1
 
         private void comboBoxWithAvailableApps_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            Settings.SelectApp(comboBoxWithAvailableApps.SelectedItem.ToString());
+            Settings.SelectApp(availableApps.SelectedItem.ToString());
         }
         #endregion
 
         #region ActionsDefinitions
 
-        private void RefreshDevices()
+        private void RefreshDevicesView()
         {
-            List<Device> ConnectedDevices = currentPlatform.GetConnectedDevices();
+            List<Device> ConnectedDevices = testModel.currentPlatform.GetConnectedDevices();
             if(ConnectedDevices.Count == 0)
             {
-                connectedDeviceIDLabel.Text = "No devices connected";
+                deviceStatusLabel.Text = "No devices connected";
             }
             else if (ConnectedDevices.Count == 1)
             {
-                connectedDeviceIDLabel.Text = ConnectedDevices[0].serial + " " + ConnectedDevices[0].status;
+                deviceStatusLabel.Text = ConnectedDevices[0].serial + " " + ConnectedDevices[0].status;
             }
             else
             {
-                connectedDeviceIDLabel.Text = "More than one device connected";
+                deviceStatusLabel.Text = "More than one device connected";
             }
 
         }
 
-        //Changes all controls in the window to enabled or disabled
-        private void ChangeEnabled(bool enabled)
+        private void SetWindowEnabled(bool enabled)
         {
             foreach (Control c in this.Controls)
             {
@@ -188,12 +190,6 @@ namespace WindowsFormsApp1
                     c.Enabled = enabled;
                 }
             }
-        }
-
-        //TODO. Temporary solution - only one platform is supported right now
-        private void SetCurrentPlatform()
-        {
-            currentPlatform = new ADBWrapper();
         }
 
         private void UpdateConsoleOutput(string log)
@@ -211,13 +207,12 @@ namespace WindowsFormsApp1
         // 4. Start new Task
         private void StartTest(bool force)
         {
-            TestDatabase database = TestDatabase.Instance;
-            TestLogic testLogic = new TestLogic(Settings.appsPackageName);
+            TestLogic testLogic = new TestLogic(Settings.chosenApp);
             List<Device> ReadyDevices = new List<Device>();
 
-            if (choosenSequenceListBox.Items.Count != 0)
+            if (chosenSequences.Items.Count != 0)
             {
-                choosenTestSteps = database.ConvertSequencesAsStringToSteps(choosenSequenceListBox.Items.Cast<string>().ToList());
+                choosenTestSteps = TestDatabase.ConvertSequencesAsStringToSteps(chosenSequences.Items.Cast<string>().ToList());
             }
             else
             {
@@ -228,9 +223,9 @@ namespace WindowsFormsApp1
             FillChoosenStepStatusCheckedList(choosenTestSteps);
 
             //check the devices
-            if(currentPlatform.IsDeviceReady())
+            if(testModel.currentPlatform.IsDeviceReady())
             {
-                ReadyDevices = currentPlatform.GetReadyDevicesFullInfo();
+                ReadyDevices = testModel.currentPlatform.GetReadyDevicesFullInfo();
             }
             else
             {
@@ -253,19 +248,18 @@ namespace WindowsFormsApp1
 
         private void FillChoosenStepStatusCheckedList(List<TestStep> testStepList)
         {
-            choosenStepsStatusCheckedList.Items.Clear();
+            stepsStatus.Items.Clear();
 
             foreach (var ts in testStepList)
             {
-                choosenStepsStatusCheckedList.Items.Add(ts.testStepID);
+                stepsStatus.Items.Add(ts.testStepID);
             }
-
         }
 
         // TODO
         public void EndTest()
         {
-            ChangeEnabled(true);
+            SetWindowEnabled(true);
         }
         #endregion
 
@@ -273,18 +267,18 @@ namespace WindowsFormsApp1
 
         public void OnStepSucceeded(object sender, TestEventArgs e)
         {
-            if(choosenStepsStatusCheckedList.InvokeRequired)
+            if(stepsStatus.InvokeRequired)
             {
                 TestEventArgs arg = new TestEventArgs() { argument = e.argument };
-                choosenStepsStatusCheckedList.Invoke(new TestLogic.StepSucceededEventHandler(OnStepSucceeded), sender, e);
+                stepsStatus.Invoke(new TestLogic.StepSucceededEventHandler(OnStepSucceeded), sender, e);
             }
             else
             {
-                for(int i = 0; i < choosenStepsStatusCheckedList.Items.Count; i++)
+                for(int i = 0; i < stepsStatus.Items.Count; i++)
                 {
-                    if (choosenStepsStatusCheckedList.Items[i].ToString() == e.argument && !choosenStepsStatusCheckedList.GetItemChecked(i))
+                    if (stepsStatus.Items[i].ToString() == e.argument && !stepsStatus.GetItemChecked(i))
                     {
-                        choosenStepsStatusCheckedList.SetItemChecked(i, true);
+                        stepsStatus.SetItemChecked(i, true);
                         break;
                     }
                 }

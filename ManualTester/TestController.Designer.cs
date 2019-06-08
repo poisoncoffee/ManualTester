@@ -28,81 +28,81 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.comboBoxWithAvailableApps = new System.Windows.Forms.ComboBox();
-            this.connectedDeviceIDLabel = new System.Windows.Forms.Label();
-            this.connectedDeviceRefreshButton = new System.Windows.Forms.Button();
-            this.loadSequencesButton = new System.Windows.Forms.Button();
-            this.choosenSequenceListBox = new System.Windows.Forms.ListBox();
+            this.availableApps = new System.Windows.Forms.ComboBox();
+            this.deviceStatusLabel = new System.Windows.Forms.Label();
+            this.deviceRefresh = new System.Windows.Forms.Button();
+            this.loadSequences = new System.Windows.Forms.Button();
+            this.chosenSequences = new System.Windows.Forms.ListBox();
             this.addSequence = new System.Windows.Forms.Button();
             this.removeSequence = new System.Windows.Forms.Button();
-            this.sequenceDefinitionsListBox = new System.Windows.Forms.ListBox();
+            this.loadedSequences = new System.Windows.Forms.ListBox();
             this.moveSequenceDown = new System.Windows.Forms.Button();
             this.moveSequenceUp = new System.Windows.Forms.Button();
-            this.runTestButton = new System.Windows.Forms.Button();
+            this.runTest = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.choosenPlatformAndroid = new System.Windows.Forms.RadioButton();
-            this.choosePlatformText = new System.Windows.Forms.Label();
+            this.chosenPlatformAndroid = new System.Windows.Forms.RadioButton();
+            this.choosePlatformLabel = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tipLabel = new System.Windows.Forms.Label();
             this.consoleOutput = new System.Windows.Forms.TextBox();
-            this.choosenStepsStatusCheckedList = new System.Windows.Forms.CheckedListBox();
+            this.stepsStatus = new System.Windows.Forms.CheckedListBox();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // comboBoxWithAvailableApps
+            // availableApps
             // 
-            this.comboBoxWithAvailableApps.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.availableApps.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxWithAvailableApps.FormattingEnabled = true;
-            this.comboBoxWithAvailableApps.Location = new System.Drawing.Point(6, 6);
-            this.comboBoxWithAvailableApps.Name = "comboBoxWithAvailableApps";
-            this.comboBoxWithAvailableApps.Size = new System.Drawing.Size(268, 21);
-            this.comboBoxWithAvailableApps.TabIndex = 2;
-            this.comboBoxWithAvailableApps.SelectionChangeCommitted += new System.EventHandler(this.comboBoxWithAvailableApps_SelectionChangeCommitted);
+            this.availableApps.FormattingEnabled = true;
+            this.availableApps.Location = new System.Drawing.Point(6, 6);
+            this.availableApps.Name = "availableApps";
+            this.availableApps.Size = new System.Drawing.Size(268, 21);
+            this.availableApps.TabIndex = 2;
+            this.availableApps.SelectionChangeCommitted += new System.EventHandler(this.comboBoxWithAvailableApps_SelectionChangeCommitted);
             // 
-            // connectedDeviceIDLabel
+            // deviceStatusLabel
             // 
-            this.connectedDeviceIDLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.deviceStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.connectedDeviceIDLabel.AutoSize = true;
-            this.connectedDeviceIDLabel.Location = new System.Drawing.Point(34, 438);
-            this.connectedDeviceIDLabel.Name = "connectedDeviceIDLabel";
-            this.connectedDeviceIDLabel.Size = new System.Drawing.Size(33, 13);
-            this.connectedDeviceIDLabel.TabIndex = 9;
-            this.connectedDeviceIDLabel.Text = "None";
+            this.deviceStatusLabel.AutoSize = true;
+            this.deviceStatusLabel.Location = new System.Drawing.Point(34, 438);
+            this.deviceStatusLabel.Name = "deviceStatusLabel";
+            this.deviceStatusLabel.Size = new System.Drawing.Size(33, 13);
+            this.deviceStatusLabel.TabIndex = 9;
+            this.deviceStatusLabel.Text = "None";
             // 
-            // connectedDeviceRefreshButton
+            // deviceRefresh
             // 
-            this.connectedDeviceRefreshButton.Location = new System.Drawing.Point(6, 432);
-            this.connectedDeviceRefreshButton.Name = "connectedDeviceRefreshButton";
-            this.connectedDeviceRefreshButton.Size = new System.Drawing.Size(22, 23);
-            this.connectedDeviceRefreshButton.TabIndex = 10;
-            this.connectedDeviceRefreshButton.Text = "R";
-            this.connectedDeviceRefreshButton.UseVisualStyleBackColor = true;
-            this.connectedDeviceRefreshButton.Click += new System.EventHandler(this.connectedDeviceRefreshButton_Click);
+            this.deviceRefresh.Location = new System.Drawing.Point(6, 432);
+            this.deviceRefresh.Name = "deviceRefresh";
+            this.deviceRefresh.Size = new System.Drawing.Size(22, 23);
+            this.deviceRefresh.TabIndex = 10;
+            this.deviceRefresh.Text = "R";
+            this.deviceRefresh.UseVisualStyleBackColor = true;
+            this.deviceRefresh.Click += new System.EventHandler(this.connectedDeviceRefreshButton_Click);
             // 
-            // loadSequencesButton
+            // loadSequences
             // 
-            this.loadSequencesButton.Location = new System.Drawing.Point(6, 33);
-            this.loadSequencesButton.Name = "loadSequencesButton";
-            this.loadSequencesButton.Size = new System.Drawing.Size(268, 23);
-            this.loadSequencesButton.TabIndex = 12;
-            this.loadSequencesButton.Text = "Load Actions";
-            this.loadSequencesButton.UseVisualStyleBackColor = true;
-            this.loadSequencesButton.Click += new System.EventHandler(this.loadSequencesButton_Click);
+            this.loadSequences.Location = new System.Drawing.Point(6, 33);
+            this.loadSequences.Name = "loadSequences";
+            this.loadSequences.Size = new System.Drawing.Size(268, 23);
+            this.loadSequences.TabIndex = 12;
+            this.loadSequences.Text = "Load Actions";
+            this.loadSequences.UseVisualStyleBackColor = true;
+            this.loadSequences.Click += new System.EventHandler(this.loadSequencesButton_Click);
             // 
-            // choosenSequenceListBox
+            // chosenSequences
             // 
-            this.choosenSequenceListBox.FormattingEnabled = true;
-            this.choosenSequenceListBox.Location = new System.Drawing.Point(332, 71);
-            this.choosenSequenceListBox.Name = "choosenSequenceListBox";
-            this.choosenSequenceListBox.Size = new System.Drawing.Size(266, 381);
-            this.choosenSequenceListBox.TabIndex = 13;
+            this.chosenSequences.FormattingEnabled = true;
+            this.chosenSequences.Location = new System.Drawing.Point(332, 71);
+            this.chosenSequences.Name = "chosenSequences";
+            this.chosenSequences.Size = new System.Drawing.Size(266, 381);
+            this.chosenSequences.TabIndex = 13;
             // 
             // addSequence
             // 
@@ -124,13 +124,13 @@
             this.removeSequence.UseVisualStyleBackColor = true;
             this.removeSequence.Click += new System.EventHandler(this.removeSequence_Click);
             // 
-            // sequenceDefinitionsListBox
+            // loadedSequences
             // 
-            this.sequenceDefinitionsListBox.FormattingEnabled = true;
-            this.sequenceDefinitionsListBox.Location = new System.Drawing.Point(6, 71);
-            this.sequenceDefinitionsListBox.Name = "sequenceDefinitionsListBox";
-            this.sequenceDefinitionsListBox.Size = new System.Drawing.Size(268, 381);
-            this.sequenceDefinitionsListBox.TabIndex = 22;
+            this.loadedSequences.FormattingEnabled = true;
+            this.loadedSequences.Location = new System.Drawing.Point(6, 71);
+            this.loadedSequences.Name = "loadedSequences";
+            this.loadedSequences.Size = new System.Drawing.Size(268, 381);
+            this.loadedSequences.TabIndex = 22;
             // 
             // moveSequenceDown
             // 
@@ -152,18 +152,18 @@
             this.moveSequenceUp.UseVisualStyleBackColor = true;
             this.moveSequenceUp.Click += new System.EventHandler(this.moveSequenceUp_Click);
             // 
-            // runTestButton
+            // runTest
             // 
-            this.runTestButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.runTest.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.runTestButton.Location = new System.Drawing.Point(6, 32);
-            this.runTestButton.Name = "runTestButton";
-            this.runTestButton.Size = new System.Drawing.Size(212, 25);
-            this.runTestButton.TabIndex = 0;
-            this.runTestButton.Text = "RUN TEST";
-            this.runTestButton.UseVisualStyleBackColor = true;
-            this.runTestButton.Click += new System.EventHandler(this.runTestButton_Click);
+            this.runTest.Location = new System.Drawing.Point(6, 32);
+            this.runTest.Name = "runTest";
+            this.runTest.Size = new System.Drawing.Size(212, 25);
+            this.runTest.TabIndex = 0;
+            this.runTest.Text = "RUN TEST";
+            this.runTest.UseVisualStyleBackColor = true;
+            this.runTest.Click += new System.EventHandler(this.runTestButton_Click);
             // 
             // tabControl
             // 
@@ -178,15 +178,15 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.choosenPlatformAndroid);
-            this.tabPage1.Controls.Add(this.choosePlatformText);
-            this.tabPage1.Controls.Add(this.comboBoxWithAvailableApps);
+            this.tabPage1.Controls.Add(this.chosenPlatformAndroid);
+            this.tabPage1.Controls.Add(this.choosePlatformLabel);
+            this.tabPage1.Controls.Add(this.availableApps);
             this.tabPage1.Controls.Add(this.moveSequenceDown);
-            this.tabPage1.Controls.Add(this.loadSequencesButton);
+            this.tabPage1.Controls.Add(this.loadSequences);
             this.tabPage1.Controls.Add(this.moveSequenceUp);
-            this.tabPage1.Controls.Add(this.sequenceDefinitionsListBox);
+            this.tabPage1.Controls.Add(this.loadedSequences);
             this.tabPage1.Controls.Add(this.removeSequence);
-            this.tabPage1.Controls.Add(this.choosenSequenceListBox);
+            this.tabPage1.Controls.Add(this.chosenSequences);
             this.tabPage1.Controls.Add(this.addSequence);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
@@ -196,36 +196,36 @@
             this.tabPage1.Text = "Tests Setup";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // choosenPlatformAndroid
+            // chosenPlatformAndroid
             // 
-            this.choosenPlatformAndroid.AutoSize = true;
-            this.choosenPlatformAndroid.Checked = true;
-            this.choosenPlatformAndroid.Location = new System.Drawing.Point(332, 33);
-            this.choosenPlatformAndroid.Name = "choosenPlatformAndroid";
-            this.choosenPlatformAndroid.Size = new System.Drawing.Size(61, 17);
-            this.choosenPlatformAndroid.TabIndex = 26;
-            this.choosenPlatformAndroid.TabStop = true;
-            this.choosenPlatformAndroid.Text = "Android";
-            this.choosenPlatformAndroid.UseVisualStyleBackColor = true;
-            this.choosenPlatformAndroid.CheckedChanged += new System.EventHandler(this.choosenPlatformAndroid_CheckedChanged);
+            this.chosenPlatformAndroid.AutoSize = true;
+            this.chosenPlatformAndroid.Checked = true;
+            this.chosenPlatformAndroid.Location = new System.Drawing.Point(332, 33);
+            this.chosenPlatformAndroid.Name = "chosenPlatformAndroid";
+            this.chosenPlatformAndroid.Size = new System.Drawing.Size(61, 17);
+            this.chosenPlatformAndroid.TabIndex = 26;
+            this.chosenPlatformAndroid.TabStop = true;
+            this.chosenPlatformAndroid.Text = "Android";
+            this.chosenPlatformAndroid.UseVisualStyleBackColor = true;
+            this.chosenPlatformAndroid.CheckedChanged += new System.EventHandler(this.choosenPlatformAndroid_CheckedChanged);
             // 
-            // choosePlatformText
+            // choosePlatformLabel
             // 
-            this.choosePlatformText.AutoSize = true;
-            this.choosePlatformText.Location = new System.Drawing.Point(329, 9);
-            this.choosePlatformText.Name = "choosePlatformText";
-            this.choosePlatformText.Size = new System.Drawing.Size(93, 13);
-            this.choosePlatformText.TabIndex = 25;
-            this.choosePlatformText.Text = "Choosen Platform:";
+            this.choosePlatformLabel.AutoSize = true;
+            this.choosePlatformLabel.Location = new System.Drawing.Point(329, 9);
+            this.choosePlatformLabel.Name = "choosePlatformLabel";
+            this.choosePlatformLabel.Size = new System.Drawing.Size(93, 13);
+            this.choosePlatformLabel.TabIndex = 25;
+            this.choosePlatformLabel.Text = "Choosen Platform:";
             // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.tipLabel);
             this.tabPage2.Controls.Add(this.consoleOutput);
-            this.tabPage2.Controls.Add(this.choosenStepsStatusCheckedList);
-            this.tabPage2.Controls.Add(this.connectedDeviceRefreshButton);
-            this.tabPage2.Controls.Add(this.runTestButton);
-            this.tabPage2.Controls.Add(this.connectedDeviceIDLabel);
+            this.tabPage2.Controls.Add(this.stepsStatus);
+            this.tabPage2.Controls.Add(this.deviceRefresh);
+            this.tabPage2.Controls.Add(this.runTest);
+            this.tabPage2.Controls.Add(this.deviceStatusLabel);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -255,14 +255,14 @@
             this.consoleOutput.TabIndex = 12;
             this.consoleOutput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.consoleOutput_KeyPress);
             // 
-            // choosenStepsStatusCheckedList
+            // stepsStatus
             // 
-            this.choosenStepsStatusCheckedList.Enabled = false;
-            this.choosenStepsStatusCheckedList.FormattingEnabled = true;
-            this.choosenStepsStatusCheckedList.Location = new System.Drawing.Point(6, 72);
-            this.choosenStepsStatusCheckedList.Name = "choosenStepsStatusCheckedList";
-            this.choosenStepsStatusCheckedList.Size = new System.Drawing.Size(212, 349);
-            this.choosenStepsStatusCheckedList.TabIndex = 11;
+            this.stepsStatus.Enabled = false;
+            this.stepsStatus.FormattingEnabled = true;
+            this.stepsStatus.Location = new System.Drawing.Point(6, 72);
+            this.stepsStatus.Name = "stepsStatus";
+            this.stepsStatus.Size = new System.Drawing.Size(212, 349);
+            this.stepsStatus.TabIndex = 11;
             // 
             // TestController
             // 
@@ -285,25 +285,25 @@
         }
 
         #endregion
-        private System.Windows.Forms.ComboBox comboBoxWithAvailableApps;
-        private System.Windows.Forms.Label connectedDeviceIDLabel;
-        private System.Windows.Forms.Button connectedDeviceRefreshButton;
-        private System.Windows.Forms.Button loadSequencesButton;
-        private System.Windows.Forms.ListBox choosenSequenceListBox;
+        private System.Windows.Forms.ComboBox availableApps;
+        private System.Windows.Forms.Label deviceStatusLabel;
+        private System.Windows.Forms.Button deviceRefresh;
+        private System.Windows.Forms.Button loadSequences;
+        private System.Windows.Forms.ListBox chosenSequences;
         private System.Windows.Forms.Button addSequence;
         private System.Windows.Forms.Button removeSequence;
-        private System.Windows.Forms.ListBox sequenceDefinitionsListBox;
+        private System.Windows.Forms.ListBox loadedSequences;
         private System.Windows.Forms.Button moveSequenceDown;
         private System.Windows.Forms.Button moveSequenceUp;
-        private System.Windows.Forms.Button runTestButton;
+        private System.Windows.Forms.Button runTest;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox consoleOutput;
-        private System.Windows.Forms.CheckedListBox choosenStepsStatusCheckedList;
+        private System.Windows.Forms.CheckedListBox stepsStatus;
         private System.Windows.Forms.Label tipLabel;
-        private System.Windows.Forms.RadioButton choosenPlatformAndroid;
-        private System.Windows.Forms.Label choosePlatformText;
+        private System.Windows.Forms.RadioButton chosenPlatformAndroid;
+        private System.Windows.Forms.Label choosePlatformLabel;
     }
 }
 

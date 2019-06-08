@@ -1,4 +1,4 @@
-{"TestStepDefinitions": [ 
+[ 
 {
   "actionIfSucceeded": "Stop",
   "actionIfFailed": "Stop",
@@ -34,4 +34,3 @@
   "posX": 100
 }
 ]
-}

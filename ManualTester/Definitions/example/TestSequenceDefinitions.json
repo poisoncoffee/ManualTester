@@ -1,4 +1,4 @@
-{"TestSequenceDefinitions": [ 
+[ 
 {
 	"testSequenceID":"Step Sequence 1",
 	"StepList" : [
@@ -21,4 +21,3 @@
 	]
 }
 ]
-}

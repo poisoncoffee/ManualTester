@@ -1,34 +1,14 @@
 ﻿using Newtonsoft.Json;
+using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace WindowsFormsApp1
 {
     public class TestDatabase
     {
-        private static TestDatabase instance = null;
-        private static readonly object padlock = new object();
-
-        private static SequenceDefinitions sequenceDefinitions = new SequenceDefinitions();
-        private static StepDefinitions stepDefinitions = new StepDefinitions();
-
-        TestDatabase()
-        {
-        }
-
-        public static TestDatabase Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                    {
-                        instance = new TestDatabase();
-                    }
-                    return instance;
-                }
-            }
-        }
+        public static List<TestStep> stepDefinitions { get; private set; } = new List<TestStep>();
+        public static List<TestSequence> sequenceDefinitions { get; private set; } = new List<TestSequence>();
 
         public enum TestAction
         {
@@ -39,46 +19,39 @@ namespace WindowsFormsApp1
             Retry
         }
 
-        public void LoadTestStepDefinitions()
+        private static List<T> DeserializeDefinitions<T>(string path) where T : class, new()
         {
-            if (stepDefinitions.TestStepDefinitions != null)
-                stepDefinitions.TestStepDefinitions.Clear();
-
-            string rawJson = "";
-            rawJson = System.IO.File.ReadAllText(Settings.stepDefinitionsFilePath);
-            stepDefinitions = JsonConvert.DeserializeObject<StepDefinitions>(rawJson);
+            string rawJson = System.IO.File.ReadAllText(path);
+            List<T> Definitions = JsonConvert.DeserializeObject<List<T>>(rawJson);
+            return Definitions;
         }
 
-        public void LoadTestSequenceDefinitions()
+        public static void LoadDefinitions()
         {
-            if(sequenceDefinitions.TestSequenceDefinitions != null)
-                sequenceDefinitions.TestSequenceDefinitions.Clear();
-
-            string rawJson = "";
-            rawJson = System.IO.File.ReadAllText(Settings.sequenceDefinitionsFilePath);
-            sequenceDefinitions = JsonConvert.DeserializeObject<SequenceDefinitions>(rawJson);
+            stepDefinitions = DeserializeDefinitions<TestStep>(Settings.stepDefinitionsFilePath);
+            sequenceDefinitions = DeserializeDefinitions<TestSequence>(Settings.sequenceDefinitionsFilePath);
         }
 
-        public List<string> GetSequenceDefinitionsAsString()
+        public static List<string> GetSequenceDefinitionsAsString()
         {
-            List<string> sequencesList = new List<string>();
-
-            foreach(TestSequence tsq in sequenceDefinitions.TestSequenceDefinitions)
-            {
-                sequencesList.Add(tsq.testSequenceID);
-            }
-
+            List<string> sequencesList = TestDatabase.sequenceDefinitions.ConvertAll(new Converter<TestSequence, string>(TestSequenceToString));
             return sequencesList;
         }
 
+        private static string TestSequenceToString(TestSequence sequence)
+        {
+            return sequence.testSequenceID;
+        }
+
+
         //Converting choosenSequences (which are strings) to actual TestSequence objects by name
-        private List<TestSequence> ConvertSequencesAsStringToSequences(List<string> choosenSequences)
+        private static List<TestSequence> ConvertSequencesAsStringToSequences(List<string> choosenSequences)
         {
             List<TestSequence> sequencePlan = new List<TestSequence>();
 
             foreach (string sequenceName in choosenSequences)
             {
-                foreach (TestSequence testSequence in sequenceDefinitions.TestSequenceDefinitions)
+                foreach (TestSequence testSequence in sequenceDefinitions)
                 {
                     if (sequenceName == testSequence.testSequenceID)
                     {
@@ -91,14 +64,14 @@ namespace WindowsFormsApp1
             return sequencePlan;
         }
 
-        private List<TestStep> ConvertSequencesToSteps(List<TestSequence> sequencePlan)
+        private static List<TestStep> ConvertSequencesToSteps(List<TestSequence> sequencePlan)
         {
             List<TestStep> stepPlan = new List<TestStep>();
             foreach (TestSequence testSequence in sequencePlan)
             {
                 foreach (string testStepOnList in testSequence.StepList)
                 {
-                    foreach (TestStep testStepDefinition in stepDefinitions.TestStepDefinitions)
+                    foreach (TestStep testStepDefinition in stepDefinitions)
                     {
                         if (testStepOnList == testStepDefinition.testStepID)
                         {
@@ -112,14 +85,14 @@ namespace WindowsFormsApp1
             return stepPlan;
         }
 
-        public List<TestStep> ConvertSequencesAsStringToSteps(List<string> choosenSequences)
+        public static List<TestStep> ConvertSequencesAsStringToSteps(List<string> choosenSequences)
         {
             List<TestSequence> testSequences = ConvertSequencesAsStringToSequences(choosenSequences);
             List<TestStep> testPlan = ConvertSequencesToSteps(testSequences);
             return testPlan;
         }
 
-        public List<string> ConvertSequencesAsStringToTestStepsAsString(List<string> choosenSequences)
+        public static List<string> ConvertSequencesAsStringToTestStepsAsString(List<string> choosenSequences)
         {
             List<string> testPlanAsString = new List<string>();
             List<TestStep> testPlan = ConvertSequencesAsStringToSteps(choosenSequences);

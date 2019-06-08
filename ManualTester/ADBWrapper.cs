@@ -21,8 +21,7 @@ namespace WindowsFormsApp1
 
         public bool LaunchApp(Device device)
         {
-            TestDatabase database = TestDatabase.Instance;
-            string arguments = device.serial + " " + Settings.appsPackageName;
+            string arguments = device.serial + " " + Settings.chosenApp;
             string launchAppResult = CommandLineExecutor.ExecuteScriptGetOutput(ADBScriptedFunctionsSettings.GetFunctionsFilePath(
                 ADBScriptedFunctionsSettings.EScriptedFunction.getResolution), 
                 arguments, 
@@ -120,7 +119,7 @@ namespace WindowsFormsApp1
             while (sr.Peek() != -1)
             {
                 tempLine = sr.ReadLine();
-                if (tempLine.Contains(Settings.appsPackageName))
+                if (tempLine.Contains(Settings.chosenApp))
                     return true;
             }
 
