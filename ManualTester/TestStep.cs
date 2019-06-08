@@ -3,7 +3,7 @@
 namespace WindowsFormsApp1
 {
 
-    public class TestStep
+    public class TestStep : IDefinable
     {
         public enum StepType
         {
@@ -29,5 +29,9 @@ namespace WindowsFormsApp1
 
         public string scriptName;                                                           //Name script file (script should be placed in the same directory as other apps Definitions)
 
+        public string GetID()
+        {
+            return testStepID;
+        }
     }
 }

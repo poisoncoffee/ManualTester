@@ -1,14 +1,14 @@
 [ 
 {
-	"testSequenceID":"Step Sequence 1",
-	"StepList" : [
+	"sequenceID":"Step Sequence 1",
+	"sequenceElements" : [
 	"step1",
 	"step2"
 	]
 },
 {
-	"testSequenceID":"Step Sequence 2",
-	"StepList" : [
+	"sequenceID":"Step Sequence 2",
+	"sequenceElements" : [
 	"step2",
 	"step1",
 	"step2",

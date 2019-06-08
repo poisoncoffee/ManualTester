@@ -2,9 +2,14 @@
 
 namespace WindowsFormsApp1
 {
-    public class TestSequence
+    public class TestSequence : IDefinable
     {
-        public string testSequenceID;
-        public List<string> StepList;
+        public string sequenceID;
+        public List<string> sequenceElements; //List of "children" IDs
+
+        public string GetID()
+        {
+            return sequenceID;
+        }
     }
 }

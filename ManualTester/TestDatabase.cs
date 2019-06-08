@@ -32,77 +32,42 @@ namespace WindowsFormsApp1
             sequenceDefinitions = DeserializeDefinitions<TestSequence>(Settings.sequenceDefinitionsFilePath);
         }
 
-        public static List<string> GetSequenceDefinitionsAsString()
+        public static List<string> ConvertIDefinablesToStrings<T>(List<T> iDefinables) where T : IDefinable, new()
         {
-            List<string> sequencesList = TestDatabase.sequenceDefinitions.ConvertAll(new Converter<TestSequence, string>(TestSequenceToString));
-            return sequencesList;
+            List<string> stringIDefinables = iDefinables.ConvertAll(new Converter<T, string>(IDefinableToString));
+            return stringIDefinables;
         }
 
-        private static string TestSequenceToString(TestSequence sequence)
+        private static string IDefinableToString<T>(T definable) where T: IDefinable
         {
-            return sequence.testSequenceID;
+            return definable.GetID();
         }
 
-
-        //Converting choosenSequences (which are strings) to actual TestSequence objects by name
-        private static List<TestSequence> ConvertSequencesAsStringToSequences(List<string> choosenSequences)
+        public static List<T> ConvertStringsToIDefinables<T>(List<string> stringIDefinables, T targetType) where T : IDefinable, new()
         {
-            List<TestSequence> sequencePlan = new List<TestSequence>();
+            List<IDefinable> iDefinables = stringIDefinables.ConvertAll(new Converter<string, IDefinable>(StringToIDefinable));
+            List<T> targets = iDefinables.OfType<T>().ToList();
 
-            foreach (string sequenceName in choosenSequences)
+            return targets;
+        }
+
+        private static IDefinable StringToIDefinable(string id)
+        {
+            List<IDefinable> allDefinables = new List<IDefinable>();
+
+            foreach (TestStep ts in stepDefinitions)
             {
-                foreach (TestSequence testSequence in sequenceDefinitions)
-                {
-                    if (sequenceName == testSequence.testSequenceID)
-                    {
-                        sequencePlan.Add(testSequence);
-                        break;
-                    }
-                }
+                allDefinables.Add(ts);
+            }
+            foreach (TestSequence tsq in sequenceDefinitions)
+            {
+                allDefinables.Add(tsq);
             }
 
-            return sequencePlan;
-        }
+            IDefinable result = allDefinables.Find(d => d.GetID() == id);
 
-        private static List<TestStep> ConvertSequencesToSteps(List<TestSequence> sequencePlan)
-        {
-            List<TestStep> stepPlan = new List<TestStep>();
-            foreach (TestSequence testSequence in sequencePlan)
-            {
-                foreach (string testStepOnList in testSequence.StepList)
-                {
-                    foreach (TestStep testStepDefinition in stepDefinitions)
-                    {
-                        if (testStepOnList == testStepDefinition.testStepID)
-                        {
-                            stepPlan.Add(testStepDefinition);
-                            break;
-                        }
-                    }
-                }
+            return result;
 
-            }
-            return stepPlan;
-        }
-
-        public static List<TestStep> ConvertSequencesAsStringToSteps(List<string> choosenSequences)
-        {
-            List<TestSequence> testSequences = ConvertSequencesAsStringToSequences(choosenSequences);
-            List<TestStep> testPlan = ConvertSequencesToSteps(testSequences);
-            return testPlan;
-        }
-
-        public static List<string> ConvertSequencesAsStringToTestStepsAsString(List<string> choosenSequences)
-        {
-            List<string> testPlanAsString = new List<string>();
-            List<TestStep> testPlan = ConvertSequencesAsStringToSteps(choosenSequences);
-
-            foreach(TestStep ts in testPlan)
-            {
-                testPlanAsString.Add(ts.testStepID);
-            }
-
-            return testPlanAsString;
         }
 
     }

@@ -52,7 +52,10 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            DisplayDefinitions(TestDatabase.GetSequenceDefinitionsAsString());  
+            List<string> defs = TestDatabase.ConvertIDefinablesToStrings(TestDatabase.sequenceDefinitions);
+            DisplayDefinitions(defs);
+            List<TestSequence> list = TestDatabase.ConvertStringsToIDefinables(defs, new TestSequence());
+            Console.WriteLine(list);
 
         }
 
@@ -212,7 +215,7 @@ namespace WindowsFormsApp1
 
             if (chosenSequences.Items.Count != 0)
             {
-                choosenTestSteps = TestDatabase.ConvertSequencesAsStringToSteps(chosenSequences.Items.Cast<string>().ToList());
+                choosenTestSteps = TestDatabase.ConvertStringsToIDefinables(chosenSequences.Items.Cast<string>().ToList(), new TestStep());
             }
             else
             {
