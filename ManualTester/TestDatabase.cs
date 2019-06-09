@@ -53,21 +53,40 @@ namespace WindowsFormsApp1
 
         private static IDefinable StringToIDefinable(string id)
         {
-            List<IDefinable> allDefinables = new List<IDefinable>();
-
-            foreach (TestStep ts in stepDefinitions)
-            {
-                allDefinables.Add(ts);
-            }
-            foreach (TestSequence tsq in sequenceDefinitions)
-            {
-                allDefinables.Add(tsq);
-            }
-
-            IDefinable result = allDefinables.Find(d => d.GetID() == id);
+            //first, looks for TestStep - if no TestStep found, looks for TestSequence
+            IDefinable result = stepDefinitions.Find(d => d.GetID() == id);
+            if (result == null)
+                result = sequenceDefinitions.Find(d => d.GetID() == id);
 
             return result;
+        }
 
+        public static List<TestStep> UnfoldSequences(List<TestSequence> sequences)
+        {
+            List<TestStep> stepList = new List<TestStep>();
+
+            foreach(TestSequence sequence in sequences)
+            {
+                stepList.AddRange(UnfoldSequence(sequence));
+            }
+
+            return stepList;
+        }
+
+        private static List<TestStep> UnfoldSequence(TestSequence sequence)
+        {
+            List<TestStep> stepList = new List<TestStep>();
+            TestStep entry = new TestStep();
+            foreach (string child in sequence.sequenceElements)
+            {
+                IDefinable result = StringToIDefinable(child);
+                if (!(result.GetType() == entry.GetType()))
+                    UnfoldSequence((TestSequence)result);
+
+                stepList.Add((TestStep)result);
+            }
+
+            return stepList;
         }
 
     }

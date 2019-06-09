@@ -215,7 +215,10 @@ namespace WindowsFormsApp1
 
             if (chosenSequences.Items.Count != 0)
             {
-                choosenTestSteps = TestDatabase.ConvertStringsToIDefinables(chosenSequences.Items.Cast<string>().ToList(), new TestStep());
+                //WIP Solution: will be reworked
+                List<TestSequence> seqs = TestDatabase.ConvertStringsToIDefinables(chosenSequences.Items.Cast<string>().ToList(), new TestSequence());
+
+                choosenTestSteps = TestDatabase.UnfoldSequences(seqs);
             }
             else
             {
