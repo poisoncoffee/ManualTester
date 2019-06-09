@@ -15,7 +15,7 @@ namespace WindowsFormsApp1
         private List<TestSequence> testSequencesList = new List<TestSequence>();
         private List<TestStep> choosenTestSteps = new List<TestStep>();
         private List<string> consoleOutputBuffer = new List<string>();
-        private bool isUpdatingConsoleOutputAllowed = true;
+        private bool isConsoleLocked = true;
         private Task test;
 
 
@@ -25,7 +25,7 @@ namespace WindowsFormsApp1
             InitializeComponent();
             testModel = new TestModel();
             testModel.SetCurrentPlatform();
-            RefreshDevicesView();
+            UpdateDevices();
             availableApps.DataSource = Settings.GetAvailableAppsList();
             Settings.SelectApp(availableApps.Text);
         }
@@ -39,9 +39,10 @@ namespace WindowsFormsApp1
             StartTest(false); 
         }
 
-        private void connectedDeviceRefreshButton_Click(object sender, EventArgs e)
+        //REAFCTORED
+        private void updateDevices_Click(object sender, EventArgs e)
         {
-            RefreshDevicesView();
+            UpdateDevices();
         }
 
         //REFACTORED
@@ -55,6 +56,13 @@ namespace WindowsFormsApp1
         private void DisplayDefinitions()
         {
             loadedSequences.DataSource = testModel.GetAvailableSequences();
+        }
+
+        //REFACTORED
+        private void DisplaySteps(List<TestStep> testStepList)
+        {
+            stepsStatus.Items.Clear();
+            testStepList.ForEach(step => { stepsStatus.Items.Add(step.GetID()); } );
         }
 
         //FUTURE MILESTONE
@@ -106,28 +114,23 @@ namespace WindowsFormsApp1
             }
         }
 
-
+        //REFACTORED
         //Pauses updating the consoleOutput window, allowing user to read logs in peace.
         //Meanwhile, the logs will be stored in consoleOutputBuffer and added to consoleOutput window after resume.
         private void consoleOutput_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (isUpdatingConsoleOutputAllowed)
+            isConsoleLocked = !isConsoleLocked;
+            if (isConsoleLocked)
             {
-                isUpdatingConsoleOutputAllowed = false;
-            }
-            else if (!isUpdatingConsoleOutputAllowed)
-            {
-                isUpdatingConsoleOutputAllowed = true;
-
                 foreach (string log in consoleOutputBuffer)
                 {
-                    UpdateConsoleOutput(log);
+                    AppendToConsole(log);
                 }
-
                 consoleOutputBuffer.Clear();
             }
         }
 
+        //REFACTORED
         private void comboBoxWithAvailableApps_SelectionChangeCommitted(object sender, EventArgs e)
         {
             Settings.SelectApp(availableApps.SelectedItem.ToString());
@@ -136,7 +139,9 @@ namespace WindowsFormsApp1
 
         #region ActionsDefinitions
 
-        private void RefreshDevicesView()
+        //FUTURE MILESTONE
+        //Support for multiple devices is a TODO. Right now this is a placeholder behaviour.
+        private void UpdateDevices()
         {
             List<Device> ConnectedDevices = testModel.currentPlatform.GetConnectedDevices();
             if(ConnectedDevices.Count == 0)
@@ -154,18 +159,17 @@ namespace WindowsFormsApp1
 
         }
 
+        //REFACTORED
         private void SetWindowEnabled(bool enabled)
         {
-            foreach (Control c in this.Controls)
+            foreach (Control c in Controls)
             {
-                if (c.Enabled != enabled)
-                {
-                    c.Enabled = enabled;
-                }
+                c.Enabled = enabled;
             }
         }
 
-        private void UpdateConsoleOutput(string log)
+        //REFACTORED
+        private void AppendToConsole(string log)
         {
             consoleOutput.AppendText(log);
             consoleOutput.Text += Environment.NewLine;
@@ -196,7 +200,7 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            FillChoosenStepStatusCheckedList(choosenTestSteps);
+            DisplaySteps(choosenTestSteps);
 
             //check the devices
             if(testModel.currentPlatform.IsDeviceReady())
@@ -222,16 +226,9 @@ namespace WindowsFormsApp1
             test.Start();
         }
 
-        private void FillChoosenStepStatusCheckedList(List<TestStep> testStepList)
-        {
-            stepsStatus.Items.Clear();
 
-            foreach (var ts in testStepList)
-            {
-                stepsStatus.Items.Add(ts.testStepID);
-            }
-        }
 
+        //FUTURE MILESTONE
         // TODO
         public void EndTest()
         {
@@ -298,11 +295,11 @@ namespace WindowsFormsApp1
             }
             else
             {
-                if (isUpdatingConsoleOutputAllowed)
+                if (isConsoleLocked)
                 {
-                    UpdateConsoleOutput(log);
+                    AppendToConsole(log);
                 }
-                else if (!isUpdatingConsoleOutputAllowed)
+                else if (!isConsoleLocked)
                 {
                     consoleOutputBuffer.Add(log);
                 }
@@ -311,8 +308,8 @@ namespace WindowsFormsApp1
 
 
 
-        #endregion
 
+        #endregion
 
     }
 }

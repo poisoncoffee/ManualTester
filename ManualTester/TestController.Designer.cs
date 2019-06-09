@@ -84,7 +84,7 @@
             this.deviceRefresh.TabIndex = 10;
             this.deviceRefresh.Text = "R";
             this.deviceRefresh.UseVisualStyleBackColor = true;
-            this.deviceRefresh.Click += new System.EventHandler(this.connectedDeviceRefreshButton_Click);
+            this.deviceRefresh.Click += new System.EventHandler(this.updateDevices_Click);
             // 
             // loadProject
             // 
@@ -257,10 +257,10 @@
             // 
             // stepsStatus
             // 
-            this.stepsStatus.Enabled = false;
             this.stepsStatus.FormattingEnabled = true;
             this.stepsStatus.Location = new System.Drawing.Point(6, 72);
             this.stepsStatus.Name = "stepsStatus";
+            this.stepsStatus.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.stepsStatus.Size = new System.Drawing.Size(212, 349);
             this.stepsStatus.TabIndex = 11;
             // 
