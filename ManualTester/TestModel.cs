@@ -26,6 +26,12 @@ namespace WindowsFormsApp1
             return true;
         }
 
+        public List<string> GetAvailableSequences()
+        {
+            List<string> sequences = TestDatabase.ConvertIDefinablesToStrings(TestDatabase.sequenceDefinitions);
+            return sequences;
+        }
+
 
 
 

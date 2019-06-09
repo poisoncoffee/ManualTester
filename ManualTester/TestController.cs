@@ -44,95 +44,65 @@ namespace WindowsFormsApp1
             RefreshDevicesView();
         }
 
+        //REFACTORED
         private void loadSequencesButton_Click(object sender, EventArgs e)
         {
-            if (!testModel.InitializeDefinitions())
-            {
-                MessageBox.Show("Please choose the project", "Loading Failed", MessageBoxButtons.OK);
-                return;
-            }
-
-            List<string> defs = TestDatabase.ConvertIDefinablesToStrings(TestDatabase.sequenceDefinitions);
-            DisplayDefinitions(defs);
-            List<TestSequence> list = TestDatabase.ConvertStringsToIDefinables(defs, new TestSequence());
-            Console.WriteLine(list);
-
+            testModel.InitializeDefinitions();
+            DisplayDefinitions();
         }
 
-        private void DisplayDefinitions(List<string> sequenceDefinitions)
+        //REFACTORED
+        private void DisplayDefinitions()
         {
-            foreach (string tsqname in sequenceDefinitions)
-            {
-                loadedSequences.Items.Add(tsqname);
-            }
-
+            loadedSequences.DataSource = testModel.GetAvailableSequences();
         }
 
+        //FUTURE MILESTONE
         private void choosenPlatformAndroid_CheckedChanged(object sender, EventArgs e)
         {
             MessageBox.Show("No platform other than Android is supported", "No choice", MessageBoxButtons.OK);
             chosenPlatformAndroid.Checked = true;
         }
 
+        //REFACTORED
         private void addSequence_Click(object sender, EventArgs e)
         {
             if (loadedSequences.SelectedItem != null)
-            {
                 chosenSequences.Items.Add(loadedSequences.SelectedItem);
-            }
         }
 
+        //REFACTORED
         private void removeSequence_Click(object sender, EventArgs e)
         {
             if (chosenSequences.SelectedItem != null)
-            {
                 chosenSequences.Items.Remove(chosenSequences.SelectedItem);
-            }
-
         }
 
+        //REFACTORED
         private void moveSequenceUp_Click(object sender, EventArgs e)
         {
-            if (chosenSequences.SelectedItem != null)
-            {
-
-                if (chosenSequences.SelectedIndex != 0)
-                {
-                    int i = chosenSequences.SelectedIndex;
-
-                    // 1. copying item to another variable
-                    // 2. overwriting it with item on higher position
-                    // 3. overwriting item on higher position with variable
-                    var selectedItem = chosenSequences.Items[i];
-                    chosenSequences.Items[i] = chosenSequences.Items[i - 1];
-                    chosenSequences.Items[i - 1] = selectedItem;
-
-                    chosenSequences.SetSelected(i - 1, true);
-                }
-
-            }
-
+            MoveSelectedSequence(1);
         }
 
+        //REFACTORED
         private void moveSequenceDown_Click(object sender, EventArgs e)
         {
-            if (chosenSequences.SelectedItem != null)
+            MoveSelectedSequence(-1);
+        }
+
+        //REFACTORED
+        private void MoveSelectedSequence(int offset)
+        {
+            if(chosenSequences.SelectedItem!= null)
             {
-
-                if (chosenSequences.SelectedIndex != chosenSequences.Items.Count - 1)
+                int i = chosenSequences.SelectedIndex - offset;
+                if (i >= 0 && i < chosenSequences.Items.Count)
                 {
-                    int i = chosenSequences.SelectedIndex;
-
-                    // 1. copying item to another variable
-                    // 2. overwriting it with item on lower position
-                    // 3. overwriting item on lower position with variable
-                    var selectedItem = chosenSequences.Items[i];
-                    chosenSequences.Items[i] = chosenSequences.Items[i + 1];
-                    chosenSequences.Items[i + 1] = selectedItem;
-
-                    chosenSequences.SetSelected(i + 1, true);
+                    var selectedItem = chosenSequences.Items[i + offset];
+                    chosenSequences.Items[i + offset] = chosenSequences.Items[i];
+                    chosenSequences.Items[i] = selectedItem;
+                    chosenSequences.SetSelected(i, true);
                 }
-
             }
         }
 

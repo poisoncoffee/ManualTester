@@ -31,7 +31,7 @@
             this.availableApps = new System.Windows.Forms.ComboBox();
             this.deviceStatusLabel = new System.Windows.Forms.Label();
             this.deviceRefresh = new System.Windows.Forms.Button();
-            this.loadSequences = new System.Windows.Forms.Button();
+            this.loadProject = new System.Windows.Forms.Button();
             this.chosenSequences = new System.Windows.Forms.ListBox();
             this.addSequence = new System.Windows.Forms.Button();
             this.removeSequence = new System.Windows.Forms.Button();
@@ -86,15 +86,15 @@
             this.deviceRefresh.UseVisualStyleBackColor = true;
             this.deviceRefresh.Click += new System.EventHandler(this.connectedDeviceRefreshButton_Click);
             // 
-            // loadSequences
+            // loadProject
             // 
-            this.loadSequences.Location = new System.Drawing.Point(6, 33);
-            this.loadSequences.Name = "loadSequences";
-            this.loadSequences.Size = new System.Drawing.Size(268, 23);
-            this.loadSequences.TabIndex = 12;
-            this.loadSequences.Text = "Load Actions";
-            this.loadSequences.UseVisualStyleBackColor = true;
-            this.loadSequences.Click += new System.EventHandler(this.loadSequencesButton_Click);
+            this.loadProject.Location = new System.Drawing.Point(6, 33);
+            this.loadProject.Name = "loadProject";
+            this.loadProject.Size = new System.Drawing.Size(268, 23);
+            this.loadProject.TabIndex = 12;
+            this.loadProject.Text = "Load Actions";
+            this.loadProject.UseVisualStyleBackColor = true;
+            this.loadProject.Click += new System.EventHandler(this.loadSequencesButton_Click);
             // 
             // chosenSequences
             // 
@@ -182,7 +182,7 @@
             this.tabPage1.Controls.Add(this.choosePlatformLabel);
             this.tabPage1.Controls.Add(this.availableApps);
             this.tabPage1.Controls.Add(this.moveSequenceDown);
-            this.tabPage1.Controls.Add(this.loadSequences);
+            this.tabPage1.Controls.Add(this.loadProject);
             this.tabPage1.Controls.Add(this.moveSequenceUp);
             this.tabPage1.Controls.Add(this.loadedSequences);
             this.tabPage1.Controls.Add(this.removeSequence);
@@ -288,7 +288,7 @@
         private System.Windows.Forms.ComboBox availableApps;
         private System.Windows.Forms.Label deviceStatusLabel;
         private System.Windows.Forms.Button deviceRefresh;
-        private System.Windows.Forms.Button loadSequences;
+        private System.Windows.Forms.Button loadProject;
         private System.Windows.Forms.ListBox chosenSequences;
         private System.Windows.Forms.Button addSequence;
         private System.Windows.Forms.Button removeSequence;
