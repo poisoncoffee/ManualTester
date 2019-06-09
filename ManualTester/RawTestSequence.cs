@@ -4,12 +4,12 @@ namespace WindowsFormsApp1
 {
     class RawTestSequence
     {
-        public string sequenceID;
-        public List<string> sequenceElements;
+        public string id;
+        public List<string> elements;
 
         public string GetID()
         {
-            return sequenceID;
+            return id;
         }
     }
 }

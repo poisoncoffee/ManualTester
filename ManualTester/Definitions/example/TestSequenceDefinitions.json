@@ -1,14 +1,14 @@
 [ 
 {
-	"sequenceID":"Step Sequence 1",
-	"sequenceElements" : [
+	"id":"Step Sequence 1",
+	"elements" : [
 	"step1",
 	"step2"
 	]
 },
 {
-	"sequenceID":"Step Sequence 2",
-	"sequenceElements" : [
+	"id":"Step Sequence 2",
+	"elements" : [
 	"step2",
 	"step1",
 	"step2",

@@ -104,7 +104,7 @@ namespace WindowsFormsApp1
                     //If !isStepSuccess is checked later on because there is a possibility to retry
                     if (isStepSuccess)
                     {
-                        OnStepSucceeded(currentStep.testStepID);
+                        OnStepSucceeded(currentStep.id);
                         testStepIndex++;
                         break;
                     }
@@ -131,13 +131,13 @@ namespace WindowsFormsApp1
                             device.deviceModel.InputBack();
                             break;
                         case TestDatabase.TestAction.Next:
-                            OnStepFailed(currentStep.testStepID);
+                            OnStepFailed(currentStep.id);
                             testStepIndex++;
                             break;
                         case TestDatabase.TestAction.Retry:
                             break;
                         case TestDatabase.TestAction.Stop:
-                            OnStepFailed(currentStep.testStepID);
+                            OnStepFailed(currentStep.id);
                             OnTestEnded(TestResultEventArgs.ResultType.StepFailed);
                             testStepIndex = testStepsPlan.Count;
                             break;

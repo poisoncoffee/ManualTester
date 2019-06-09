@@ -3,7 +3,7 @@
 namespace WindowsFormsApp1
 {
 
-    public class TestStep : IDefinable
+    public class TestStep : TestDefinition
     {
         public enum StepType
         {
@@ -17,7 +17,6 @@ namespace WindowsFormsApp1
         public TestDatabase.TestAction actionIfFailed = TestDatabase.TestAction.Stop;       //What to do if confirmation is absent
         public StepType testStepType;                                                       //TODO more types
 
-        public string testStepID;                                                           //Name of step. Needs to be unique.
         public List<string> conditionLog;                                                   //[TODO] Step will be executed only if at least one of the conditionLogs is present. If the condition is absent, the step ends with success.
         public List<string> confirmationLog;                                                //Step ends with a success if at least one of the confirmationLog is present. If the confirmation is absent, the stem ends with fail.
 
@@ -29,12 +28,7 @@ namespace WindowsFormsApp1
 
         public string scriptName;                                                           //Name script file (script should be placed in the same directory as other apps Definitions)
 
-        public string GetID()
-        {
-            return testStepID;
-        }
-
-        public List<TestStep> Flatify()
+        public override List<TestStep> Flatify()
         {
             return new List<TestStep> { this };
         }

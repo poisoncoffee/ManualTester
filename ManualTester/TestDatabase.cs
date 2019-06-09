@@ -7,7 +7,7 @@ namespace WindowsFormsApp1
 {
     public class TestDatabase
     {
-        private static Dictionary<string, IDefinable> definitions = new Dictionary<string, IDefinable>();
+        private static Dictionary<string, TestDefinition> definitions = new Dictionary<string, TestDefinition>();
 
         public enum TestAction
         {
@@ -36,35 +36,35 @@ namespace WindowsFormsApp1
             List<RawTestSequence> rawSequenceDefinitions = DeserializeDefinitions<RawTestSequence>(Settings.sequenceDefinitionsFilePath);
             foreach(RawTestSequence rawSequence in rawSequenceDefinitions)
             {
-                TestSet sequence = new TestSet();
-                sequence.sequenceID = rawSequence.GetID();
+                TestSequence sequence = new TestSequence();
+                sequence.id = rawSequence.GetID();
 
-                sequence.sequenceElements = definitions.Values.ToList().Where(p => rawSequence.sequenceElements.Any(l => p.GetID() == l)).ToList();
+                sequence.elements = definitions.Values.ToList().Where(p => rawSequence.elements.Any(l => p.GetID() == l)).ToList();
 
                 definitions.Add(sequence.GetID(), sequence);
             }
         }
 
-        public static List<string> ConvertIDefinablesToStrings(List<IDefinable> iDefinables)
+        public static List<string> ConvertTestDefinitionsToStrings(List<TestDefinition> testDefinitions)
         {
-            List<string> stringIDefinables = iDefinables.ConvertAll(new Converter<IDefinable, string>(IDefinableToString));
-            return stringIDefinables;
+            List<string> stringDefinitions = testDefinitions.ConvertAll(new Converter<TestDefinition, string>(TestDefinitionToString));
+            return stringDefinitions;
         }
 
-        private static string IDefinableToString<T>(T definable) where T: IDefinable
+        private static string TestDefinitionToString(TestDefinition definition)
         {
-            return definable.GetID();
+            return definition.GetID();
         }
 
-        public static List<T> ConvertStringsToIDefinables<T>(List<string> stringIDefinables, T targetType) where T : IDefinable, new()
+        public static List<T> ConvertStringsToTestDefinitions<T>(List<string> stringDefinitions, T targetType) where T : TestDefinition, new()
         {
-            List<IDefinable> iDefinables = stringIDefinables.ConvertAll(new Converter<string, IDefinable>(StringToIDefinable));
-            List<T> targets = iDefinables.OfType<T>().ToList();
+            List<TestDefinition> testDefinitions = stringDefinitions.ConvertAll(new Converter<string, TestDefinition>(StringToTestDefinition));
+            List<T> targets = testDefinitions.OfType<T>().ToList();
 
             return targets;
         }
 
-        private static IDefinable StringToIDefinable(string id)
+        private static TestDefinition StringToTestDefinition(string id)
         {
             var result = definitions.Where(p => p.Key == id).ToList();
             if (result.Count == 1)
@@ -75,7 +75,7 @@ namespace WindowsFormsApp1
                 throw new ArgumentException("Definition ID: " + id + " is not unique! Found " + result.Count + " occurencies of " + id + "!");
         }
 
-        public static List<IDefinable> GetLoadedDefinitions()
+        public static List<TestDefinition> GetLoadedDefinitions()
         {
             return definitions.Values.ToList();
         }
