@@ -33,5 +33,10 @@ namespace WindowsFormsApp1
         {
             return testStepID;
         }
+
+        public List<TestStep> Flatify()
+        {
+            return new List<TestStep> { this };
+        }
     }
 }

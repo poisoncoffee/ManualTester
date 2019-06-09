@@ -73,6 +73,7 @@
     <Compile Include="IDeviceModel.cs" />
     <Compile Include="ILogcatOperator.cs" />
     <Compile Include="Logcat.cs" />
+    <Compile Include="RawTestSequence.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="TestDatabase.cs" />
     <Compile Include="TestController.cs">
@@ -85,7 +86,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestLogic.cs" />
     <Compile Include="TestModel.cs" />
-    <Compile Include="TestSequence.cs" />
+    <Compile Include="TestSet.cs" />
     <Compile Include="TestStep.cs" />
     <EmbeddedResource Include="TestController.resx">
       <DependentUpon>TestController.cs</DependentUpon>

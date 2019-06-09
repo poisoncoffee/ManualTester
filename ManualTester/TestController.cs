@@ -12,7 +12,7 @@ namespace WindowsFormsApp1
 
         private TestModel testModel;
 
-        private List<TestSequence> testSequencesList = new List<TestSequence>();
+        private List<TestSet> testSequencesList = new List<TestSet>();
         private List<TestStep> choosenTestSteps = new List<TestStep>();
         private List<string> consoleOutputBuffer = new List<string>();
         private bool isConsoleLocked = true;
@@ -190,9 +190,12 @@ namespace WindowsFormsApp1
             if (chosenSequences.Items.Count != 0)
             {
                 //WIP Solution: will be reworked
-                List<TestSequence> seqs = TestDatabase.ConvertStringsToIDefinables(chosenSequences.Items.Cast<string>().ToList(), new TestSequence());
-
-                choosenTestSteps = TestDatabase.UnfoldSequences(seqs);
+                List<TestSet> seqs = TestDatabase.ConvertStringsToIDefinables(chosenSequences.Items.Cast<string>().ToList(), new TestSet());
+                
+                foreach (TestSet sequence in seqs)
+                {
+                   choosenTestSteps.AddRange(sequence.Flatify());
+                }
             }
             else
             {

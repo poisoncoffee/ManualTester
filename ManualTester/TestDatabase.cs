@@ -7,8 +7,7 @@ namespace WindowsFormsApp1
 {
     public class TestDatabase
     {
-        public static List<TestStep> stepDefinitions { get; private set; } = new List<TestStep>();
-        public static List<TestSequence> sequenceDefinitions { get; private set; } = new List<TestSequence>();
+        private static Dictionary<string, IDefinable> definitions = new Dictionary<string, IDefinable>();
 
         public enum TestAction
         {
@@ -28,13 +27,27 @@ namespace WindowsFormsApp1
 
         public static void LoadDefinitions()
         {
-            stepDefinitions = DeserializeDefinitions<TestStep>(Settings.stepDefinitionsFilePath);
-            sequenceDefinitions = DeserializeDefinitions<TestSequence>(Settings.sequenceDefinitionsFilePath);
+            List<TestStep> stepDefinitions = DeserializeDefinitions<TestStep>(Settings.stepDefinitionsFilePath);
+            foreach(TestStep step in stepDefinitions)
+            {
+                definitions.Add(step.GetID(), step);
+            }
+
+            List<RawTestSequence> rawSequenceDefinitions = DeserializeDefinitions<RawTestSequence>(Settings.sequenceDefinitionsFilePath);
+            foreach(RawTestSequence rawSequence in rawSequenceDefinitions)
+            {
+                TestSet sequence = new TestSet();
+                sequence.sequenceID = rawSequence.GetID();
+
+                sequence.sequenceElements = definitions.Values.ToList().Where(p => rawSequence.sequenceElements.Any(l => p.GetID() == l)).ToList();
+
+                definitions.Add(sequence.GetID(), sequence);
+            }
         }
 
-        public static List<string> ConvertIDefinablesToStrings<T>(List<T> iDefinables) where T : IDefinable, new()
+        public static List<string> ConvertIDefinablesToStrings(List<IDefinable> iDefinables)
         {
-            List<string> stringIDefinables = iDefinables.ConvertAll(new Converter<T, string>(IDefinableToString));
+            List<string> stringIDefinables = iDefinables.ConvertAll(new Converter<IDefinable, string>(IDefinableToString));
             return stringIDefinables;
         }
 
@@ -53,40 +66,18 @@ namespace WindowsFormsApp1
 
         private static IDefinable StringToIDefinable(string id)
         {
-            //first, looks for TestStep - if no TestStep found, looks for TestSequence
-            IDefinable result = stepDefinitions.Find(d => d.GetID() == id);
-            if (result == null)
-                result = sequenceDefinitions.Find(d => d.GetID() == id);
-
-            return result;
+            var result = definitions.Where(p => p.Key == id).ToList();
+            if (result.Count == 1)
+                return result[0].Value;
+            else if(result.Count == 0)
+                throw new ArgumentException("Element of ID: " + id + " not found.");
+            else
+                throw new ArgumentException("Definition ID: " + id + " is not unique! Found " + result.Count + " occurencies of " + id + "!");
         }
 
-        public static List<TestStep> UnfoldSequences(List<TestSequence> sequences)
+        public static List<IDefinable> GetLoadedDefinitions()
         {
-            List<TestStep> stepList = new List<TestStep>();
-
-            foreach(TestSequence sequence in sequences)
-            {
-                stepList.AddRange(UnfoldSequence(sequence));
-            }
-
-            return stepList;
-        }
-
-        private static List<TestStep> UnfoldSequence(TestSequence sequence)
-        {
-            List<TestStep> stepList = new List<TestStep>();
-            TestStep entry = new TestStep();
-            foreach (string child in sequence.sequenceElements)
-            {
-                IDefinable result = StringToIDefinable(child);
-                if (!(result.GetType() == entry.GetType()))
-                    UnfoldSequence((TestSequence)result);
-
-                stepList.Add((TestStep)result);
-            }
-
-            return stepList;
+            return definitions.Values.ToList();
         }
 
     }

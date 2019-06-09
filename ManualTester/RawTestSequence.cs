@@ -2,10 +2,10 @@
 
 namespace WindowsFormsApp1
 {
-    public class TestSequence : IDefinable
+    class RawTestSequence
     {
         public string sequenceID;
-        public List<string> sequenceElements; //List of "children" IDs
+        public List<string> sequenceElements;
 
         public string GetID()
         {
